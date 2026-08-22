@@ -7,6 +7,7 @@ import type { TMDBMovieRaw, TMDBTVRaw, TMDBSeasonRaw } from "./types";
 import type { MediaItem, Episode, SearchResult } from "../core/types";
 
 const TMDB_BASE_URL = "https://api.themoviedb.org/3";
+const DEFAULT_TMDB_API_KEY = "96b40e1533d4a4d054400e11df3a7cc1";
 
 export class TMDBClient {
   private apiKey: string;
@@ -16,7 +17,7 @@ export class TMDBClient {
       apiKey ||
       process.env.TMDB_API_KEY ||
       process.env.NEXT_PUBLIC_TMDB_API_KEY ||
-      "";
+      DEFAULT_TMDB_API_KEY;
   }
 
   setApiKey(key: string) {
