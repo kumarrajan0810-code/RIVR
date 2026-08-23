@@ -80,6 +80,10 @@ export const providerRegistry = new ProviderRegistryImpl();
 import { MockProvider } from "../mock/provider";
 import { videasyProvider } from "../videasy/provider";
 import { vidkingProvider } from "../vidking/provider";
+import { vidlinkProvider } from "../vidlink/provider";
+import { vidsrcProvider } from "../vidsrc/provider";
+import { autoEmbedProvider } from "../autoembed/provider";
+import { superEmbedProvider } from "../superembed/provider";
 import { aniListProvider } from "../anilist/provider";
 import { tmdbProvider } from "../tmdb/provider";
 
@@ -87,5 +91,8 @@ providerRegistry.register(aniListProvider);
 providerRegistry.register(tmdbProvider);
 providerRegistry.register(videasyProvider);
 providerRegistry.register(vidkingProvider);
+providerRegistry.register(vidlinkProvider);
+providerRegistry.register(vidsrcProvider);
+providerRegistry.register(autoEmbedProvider);
+providerRegistry.register(superEmbedProvider);
 providerRegistry.register(new MockProvider());
-

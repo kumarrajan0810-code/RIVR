@@ -6,6 +6,10 @@ import { VideoPlayer } from "@/components/player/VideoPlayer";
 import { getMediaById, MOCK_STREAMS } from "@/providers/mock/data";
 import { videasyProvider } from "@/providers/videasy/provider";
 import { vidkingProvider } from "@/providers/vidking/provider";
+import { vidlinkProvider } from "@/providers/vidlink/provider";
+import { vidsrcProvider } from "@/providers/vidsrc/provider";
+import { autoEmbedProvider } from "@/providers/autoembed/provider";
+import { superEmbedProvider } from "@/providers/superembed/provider";
 import { useWatchHistory } from "@/hooks/useWatchHistory";
 import type { Stream, MediaItem } from "@/providers/core/types";
 
@@ -45,17 +49,23 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
 
   useEffect(() => {
     async function loadStreams() {
+      const results = await Promise.allSettled([
+        videasyProvider.getStreams(id, episodeId),
+        vidlinkProvider.getStreams(id, episodeId),
+        vidkingProvider.getStreams(id, episodeId),
+        vidsrcProvider.getStreams(id, episodeId),
+        autoEmbedProvider.getStreams(id, episodeId),
+        superEmbedProvider.getStreams(id, episodeId),
+      ]);
+
       const streams: Stream[] = [];
+      results.forEach((res) => {
+        if (res.status === "fulfilled" && Array.isArray(res.value)) {
+          streams.push(...res.value);
+        }
+      });
 
-      // 1. Videasy stream for live media
-      const vStreams = await videasyProvider.getStreams(id, episodeId);
-      streams.push(...vStreams);
-
-      // 2. Vidking Multi-Source 4K player
-      const vkStreams = await vidkingProvider.getStreams(id, episodeId);
-      streams.push(...vkStreams);
-
-      // 3. Add HLS mock stream as backup source
+      // Add HLS mock stream as fallback
       streams.push(...MOCK_STREAMS);
 
       setAvailableStreams(streams);

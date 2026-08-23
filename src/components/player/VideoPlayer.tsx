@@ -51,7 +51,7 @@ export function VideoPlayer({
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [hoverX, setHoverX] = useState(0);
 
-  const isExternalEmbed = stream?.type === StreamType.EXTERNAL || (!stream?.isHls && (stream?.url.includes("player.videasy.net") || stream?.url.includes("vidking.net")));
+  const isExternalEmbed = stream?.type === StreamType.EXTERNAL || Boolean(stream && !stream.isHls);
 
   // ---- PostMessage listener for Videasy & Vidking iframe progress tracking ----
   useEffect(() => {
