@@ -11,11 +11,11 @@ import { parseEpisodeInfo } from "@/lib/utils";
 
 export class VidSrcProvider extends BaseMediaProvider {
   readonly id = "vidsrc";
-  readonly name = "VidSrc Ultra HD";
+  readonly name = "VidSrc PRO Server";
   readonly type = "streaming" as const;
   readonly capabilities: ProviderCapability[] = ["streaming"];
 
-  private baseUrl = "https://vidsrc.cc/v2/embed";
+  private baseUrl = "https://vidsrc.xyz/embed";
 
   buildPlayerUrl(params: {
     mediaType: MediaType;
@@ -27,11 +27,11 @@ export class VidSrcProvider extends BaseMediaProvider {
     if (!tmdbId) return null;
 
     if (mediaType === MediaType.MOVIE) {
-      return `${this.baseUrl}/movie/${tmdbId}?autoPlay=true`;
+      return `${this.baseUrl}/movie?tmdb=${tmdbId}`;
     }
 
     if (mediaType === MediaType.SERIES) {
-      return `${this.baseUrl}/tv/${tmdbId}/${season}/${episode}?autoPlay=true`;
+      return `${this.baseUrl}/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`;
     }
 
     return null;
@@ -77,7 +77,7 @@ export class VidSrcProvider extends BaseMediaProvider {
     return [
       {
         id: `vidsrc-${mediaId}-${episodeId || "movie"}`,
-        title: "VidSrc Ultra HD Server",
+        title: "VidSrc PRO Server",
         url: playerUrl,
         type: StreamType.EXTERNAL,
         quality: Quality.Q1080,

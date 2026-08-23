@@ -11,11 +11,11 @@ import { parseEpisodeInfo } from "@/lib/utils";
 
 export class AutoEmbedProvider extends BaseMediaProvider {
   readonly id = "autoembed";
-  readonly name = "AutoEmbed Cloud";
+  readonly name = "SmashyStream Cloud";
   readonly type = "streaming" as const;
   readonly capabilities: ProviderCapability[] = ["streaming"];
 
-  private baseUrl = "https://player.autoembed.cc/embed";
+  private baseUrl = "https://player.smashystream.com";
 
   buildPlayerUrl(params: {
     mediaType: MediaType;
@@ -31,7 +31,7 @@ export class AutoEmbedProvider extends BaseMediaProvider {
     }
 
     if (mediaType === MediaType.SERIES) {
-      return `${this.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
+      return `${this.baseUrl}/tv/${tmdbId}?s=${season}&e=${episode}`;
     }
 
     return null;
@@ -76,8 +76,8 @@ export class AutoEmbedProvider extends BaseMediaProvider {
 
     return [
       {
-        id: `autoembed-${mediaId}-${episodeId || "movie"}`,
-        title: "AutoEmbed Fast Server",
+        id: `smashy-${mediaId}-${episodeId || "movie"}`,
+        title: "SmashyStream Fast Cloud",
         url: playerUrl,
         type: StreamType.EXTERNAL,
         quality: Quality.Q1080,

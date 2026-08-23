@@ -11,11 +11,11 @@ import { parseEpisodeInfo } from "@/lib/utils";
 
 export class SuperEmbedProvider extends BaseMediaProvider {
   readonly id = "superembed";
-  readonly name = "SuperEmbed / MultiEmbed";
+  readonly name = "VidSrc ICU Stream";
   readonly type = "streaming" as const;
   readonly capabilities: ProviderCapability[] = ["streaming"];
 
-  private baseUrl = "https://multiembed.mov";
+  private baseUrl = "https://vidsrc.icu/embed";
 
   buildPlayerUrl(params: {
     mediaType: MediaType;
@@ -27,11 +27,11 @@ export class SuperEmbedProvider extends BaseMediaProvider {
     if (!tmdbId) return null;
 
     if (mediaType === MediaType.MOVIE) {
-      return `${this.baseUrl}/?video_id=${tmdbId}&tmdb=1`;
+      return `${this.baseUrl}/movie/${tmdbId}`;
     }
 
     if (mediaType === MediaType.SERIES) {
-      return `${this.baseUrl}/?video_id=${tmdbId}&tmdb=1&s=${season}&e=${episode}`;
+      return `${this.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
     }
 
     return null;
@@ -76,8 +76,8 @@ export class SuperEmbedProvider extends BaseMediaProvider {
 
     return [
       {
-        id: `superembed-${mediaId}-${episodeId || "movie"}`,
-        title: "MultiEmbed Backup Server",
+        id: `vidsrc-icu-${mediaId}-${episodeId || "movie"}`,
+        title: "VidSrc ICU Ultra Server",
         url: playerUrl,
         type: StreamType.EXTERNAL,
         quality: Quality.Q1080,
