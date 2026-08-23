@@ -8,7 +8,9 @@ import { vidkingProvider } from "@/providers/vidking/provider";
 import { vidlinkProvider } from "@/providers/vidlink/provider";
 import { cineProProvider } from "@/providers/cinepro/provider";
 import { autoEmbedProvider } from "@/providers/autoembed/provider";
+import { debridProvider } from "@/providers/debrid/provider";
 import { useWatchHistory } from "@/hooks/useWatchHistory";
+import { useUserStore } from "@/stores/userStore";
 import type { Stream, MediaItem } from "@/providers/core/types";
 
 export default function WatchPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,6 +21,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
 
   const [media, setMedia] = useState<MediaItem | null>(null);
   const { getProgress, recordProgress } = useWatchHistory();
+  const { debridApiKey } = useUserStore();
 
   const [availableStreams, setAvailableStreams] = useState<Stream[]>([]);
   const [currentStream, setCurrentStream] = useState<Stream | null>(null);
@@ -48,6 +51,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
   useEffect(() => {
     async function loadStreams() {
       const results = await Promise.allSettled([
+        debridProvider.getStreams(id, episodeId, media?.externalIds?.imdbId, debridApiKey),
         videasyProvider.getStreams(id, episodeId),
         vidlinkProvider.getStreams(id, episodeId),
         vidkingProvider.getStreams(id, episodeId),
@@ -67,7 +71,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
     }
 
     loadStreams();
-  }, [id, episodeId]);
+  }, [id, episodeId, media, debridApiKey]);
 
   // 1. Immediately record initial progress when media is loaded
   useEffect(() => {

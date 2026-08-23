@@ -104,7 +104,19 @@ export function VideoPlayer({
             hls = new Hls({
               enableWorker: true,
               lowLatencyMode: false,
-              backBufferLength: 90,
+              backBufferLength: 60,
+              maxBufferLength: 60,
+              maxMaxBufferLength: 120,
+              maxBufferSize: 60 * 1024 * 1024,
+              maxBufferHole: 0.5,
+              highBufferWatchdogPeriod: 2,
+              fragLoadingMaxRetry: 5,
+              manifestLoadingMaxRetry: 5,
+              levelLoadingMaxRetry: 5,
+              fragLoadingRetryDelay: 500,
+              manifestLoadingRetryDelay: 500,
+              levelLoadingRetryDelay: 500,
+              progressive: true,
             });
             hls.loadSource(stream.url);
             hls.attachMedia(video);
