@@ -84,6 +84,7 @@ import { vidlinkProvider } from "../vidlink/provider";
 import { vidsrcProvider } from "../vidsrc/provider";
 import { autoEmbedProvider } from "../autoembed/provider";
 import { superEmbedProvider } from "../superembed/provider";
+import { cineProProvider } from "../cinepro/provider";
 import { aniListProvider } from "../anilist/provider";
 import { tmdbProvider } from "../tmdb/provider";
 
@@ -95,4 +96,5 @@ providerRegistry.register(vidlinkProvider);
 providerRegistry.register(vidsrcProvider);
 providerRegistry.register(autoEmbedProvider);
 providerRegistry.register(superEmbedProvider);
+providerRegistry.register(cineProProvider);
 providerRegistry.register(new MockProvider());
