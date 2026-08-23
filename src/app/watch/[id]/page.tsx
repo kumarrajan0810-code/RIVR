@@ -3,14 +3,11 @@
 import { use, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { VideoPlayer } from "@/components/player/VideoPlayer";
-import { getMediaById, MOCK_STREAMS } from "@/providers/mock/data";
 import { videasyProvider } from "@/providers/videasy/provider";
 import { vidkingProvider } from "@/providers/vidking/provider";
 import { vidlinkProvider } from "@/providers/vidlink/provider";
-import { vidsrcProvider } from "@/providers/vidsrc/provider";
-import { autoEmbedProvider } from "@/providers/autoembed/provider";
-import { superEmbedProvider } from "@/providers/superembed/provider";
 import { cineProProvider } from "@/providers/cinepro/provider";
+import { autoEmbedProvider } from "@/providers/autoembed/provider";
 import { useWatchHistory } from "@/hooks/useWatchHistory";
 import type { Stream, MediaItem } from "@/providers/core/types";
 
@@ -20,7 +17,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
   const searchParams = useSearchParams();
   const episodeId = searchParams.get("episode") || undefined;
 
-  const [media, setMedia] = useState<MediaItem | null>(() => getMediaById(id) || null);
+  const [media, setMedia] = useState<MediaItem | null>(null);
   const { getProgress, recordProgress } = useWatchHistory();
 
   const [availableStreams, setAvailableStreams] = useState<Stream[]>([]);
@@ -55,9 +52,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
         vidlinkProvider.getStreams(id, episodeId),
         vidkingProvider.getStreams(id, episodeId),
         cineProProvider.getStreams(id, episodeId),
-        vidsrcProvider.getStreams(id, episodeId),
         autoEmbedProvider.getStreams(id, episodeId),
-        superEmbedProvider.getStreams(id, episodeId),
       ]);
 
       const streams: Stream[] = [];
@@ -66,9 +61,6 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
           streams.push(...res.value);
         }
       });
-
-      // Add HLS mock stream as fallback
-      streams.push(...MOCK_STREAMS);
 
       setAvailableStreams(streams);
       setCurrentStream(streams[0] || null);
