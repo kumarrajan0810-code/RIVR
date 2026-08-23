@@ -7,14 +7,13 @@ import {
   type ProviderCapability,
 } from "../core/types";
 import { getMediaById } from "../mock/data";
+import { parseEpisodeInfo } from "@/lib/utils";
 
 export class CineProProvider extends BaseMediaProvider {
   readonly id = "cinepro";
-  readonly name = "CinePro / Embed.su Cloud";
+  readonly name = "2Embed Cloud";
   readonly type = "streaming" as const;
   readonly capabilities: ProviderCapability[] = ["streaming"];
-
-  private baseUrl = "https://embed.su/embed";
 
   buildPlayerUrl(params: {
     mediaType: MediaType;
@@ -26,11 +25,11 @@ export class CineProProvider extends BaseMediaProvider {
     if (!tmdbId) return null;
 
     if (mediaType === MediaType.MOVIE) {
-      return `${this.baseUrl}/movie/${tmdbId}`;
+      return `https://www.2embed.cc/embed/${tmdbId}`;
     }
 
     if (mediaType === MediaType.SERIES) {
-      return `${this.baseUrl}/tv/${tmdbId}/${season}/${episode}`;
+      return `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`;
     }
 
     return null;
@@ -59,16 +58,9 @@ export class CineProProvider extends BaseMediaProvider {
     if (!tmdbId) return [];
 
     if (episodeId) {
-      const match = episodeId.match(/s?(\d+)[-_:e]e?p?(\d+)/i) || episodeId.match(/(\d+)-(\d+)$/);
-      if (match) {
-        seasonNum = parseInt(match[1], 10);
-        episodeNum = parseInt(match[2], 10);
-      } else {
-        const epMatch = episodeId.match(/ep-?(\d+)/i);
-        if (epMatch) {
-          episodeNum = parseInt(epMatch[1], 10);
-        }
-      }
+      const parsed = parseEpisodeInfo(episodeId);
+      seasonNum = parsed.season;
+      episodeNum = parsed.episode;
     }
 
     const playerUrl = this.buildPlayerUrl({
@@ -83,7 +75,7 @@ export class CineProProvider extends BaseMediaProvider {
     return [
       {
         id: `cinepro-${mediaId}-${episodeId || "movie"}`,
-        title: "CinePro Ultra Fast Server",
+        title: "2Embed Multi-Server",
         url: playerUrl,
         type: StreamType.EXTERNAL,
         quality: Quality.Q1080,

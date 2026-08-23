@@ -56,3 +56,63 @@ export function getBackdropUrl(path: string | null, size: string = "w1280"): str
   if (path.startsWith("http")) return path;
   return `https://image.tmdb.org/t/p/${size}${path}`;
 }
+
+/**
+ * Robust parser for episode identifiers across TMDB, AniList, and custom formats.
+ * e.g.:
+ * - "tmdb-ep-tmdb-tv-291496-1-1" -> { season: 1, episode: 1 }
+ * - "tmdb-ep-291496-2-4"         -> { season: 2, episode: 4 }
+ * - "ep-1-3"                     -> { season: 1, episode: 3 }
+ * - "s02e05"                     -> { season: 2, episode: 5 }
+ * - "ep-12"                      -> { season: 1, episode: 12 }
+ * - "12"                         -> { season: 1, episode: 12 }
+ */
+export function parseEpisodeInfo(episodeId?: string): { season: number; episode: number } {
+  if (!episodeId) {
+    return { season: 1, episode: 1 };
+  }
+
+  // 1. Matches trailing "-<season>-<episode>" e.g. "tmdb-ep-tmdb-tv-291496-1-2"
+  const trailingSeasonEpMatch = episodeId.match(/-(\d+)-(\d+)$/);
+  if (trailingSeasonEpMatch) {
+    return {
+      season: parseInt(trailingSeasonEpMatch[1], 10),
+      episode: parseInt(trailingSeasonEpMatch[2], 10),
+    };
+  }
+
+  // 2. Matches "s<season>e<episode>" or "s<season>_e<episode>" e.g. "s01e02"
+  const sMatch = episodeId.match(/s(\d+)[-_:ex]e?p?(\d+)/i);
+  if (sMatch) {
+    return {
+      season: parseInt(sMatch[1], 10),
+      episode: parseInt(sMatch[2], 10),
+    };
+  }
+
+  // 3. Matches "ep-<season>-<episode>"
+  const epSeasonMatch = episodeId.match(/ep-(\d+)-(\d+)/i);
+  if (epSeasonMatch) {
+    return {
+      season: parseInt(epSeasonMatch[1], 10),
+      episode: parseInt(epSeasonMatch[2], 10),
+    };
+  }
+
+  // 4. Matches single episode number e.g. "ep-15" or "ep15"
+  const singleEpMatch = episodeId.match(/ep-?(\d+)/i);
+  if (singleEpMatch) {
+    return {
+      season: 1,
+      episode: parseInt(singleEpMatch[1], 10),
+    };
+  }
+
+  // 5. Raw number e.g. "5"
+  const rawNum = parseInt(episodeId, 10);
+  if (!isNaN(rawNum) && rawNum > 0) {
+    return { season: 1, episode: rawNum };
+  }
+
+  return { season: 1, episode: 1 };
+}

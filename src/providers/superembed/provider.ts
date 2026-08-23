@@ -7,6 +7,7 @@ import {
   type ProviderCapability,
 } from "../core/types";
 import { getMediaById } from "../mock/data";
+import { parseEpisodeInfo } from "@/lib/utils";
 
 export class SuperEmbedProvider extends BaseMediaProvider {
   readonly id = "superembed";
@@ -59,16 +60,9 @@ export class SuperEmbedProvider extends BaseMediaProvider {
     if (!tmdbId) return [];
 
     if (episodeId) {
-      const match = episodeId.match(/s?(\d+)[-_:e]e?p?(\d+)/i) || episodeId.match(/(\d+)-(\d+)$/);
-      if (match) {
-        seasonNum = parseInt(match[1], 10);
-        episodeNum = parseInt(match[2], 10);
-      } else {
-        const epMatch = episodeId.match(/ep-?(\d+)/i);
-        if (epMatch) {
-          episodeNum = parseInt(epMatch[1], 10);
-        }
-      }
+      const parsed = parseEpisodeInfo(episodeId);
+      seasonNum = parsed.season;
+      episodeNum = parsed.episode;
     }
 
     const playerUrl = this.buildPlayerUrl({
