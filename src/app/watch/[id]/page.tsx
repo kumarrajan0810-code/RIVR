@@ -8,6 +8,7 @@ import { vidkingProvider } from "@/providers/vidking/provider";
 import { vidlinkProvider } from "@/providers/vidlink/provider";
 import { cineProProvider } from "@/providers/cinepro/provider";
 import { autoEmbedProvider } from "@/providers/autoembed/provider";
+import { vidPlusProvider } from "@/providers/vidplus/provider";
 import { useWatchHistory } from "@/hooks/useWatchHistory";
 import type { Stream, MediaItem } from "@/providers/core/types";
 
@@ -51,6 +52,7 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
         videasyProvider.getStreams(id, episodeId),
         vidlinkProvider.getStreams(id, episodeId),
         vidkingProvider.getStreams(id, episodeId),
+        vidPlusProvider.getStreams(id, episodeId),
         cineProProvider.getStreams(id, episodeId),
         autoEmbedProvider.getStreams(id, episodeId),
       ]);

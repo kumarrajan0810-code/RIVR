@@ -82,6 +82,7 @@ import { vidkingProvider } from "../vidking/provider";
 import { vidlinkProvider } from "../vidlink/provider";
 import { autoEmbedProvider } from "../autoembed/provider";
 import { cineProProvider } from "../cinepro/provider";
+import { vidPlusProvider } from "../vidplus/provider";
 import { aniListProvider } from "../anilist/provider";
 import { tmdbProvider } from "../tmdb/provider";
 
@@ -90,5 +91,6 @@ providerRegistry.register(tmdbProvider);
 providerRegistry.register(videasyProvider);
 providerRegistry.register(vidlinkProvider);
 providerRegistry.register(vidkingProvider);
+providerRegistry.register(vidPlusProvider);
 providerRegistry.register(cineProProvider);
 providerRegistry.register(autoEmbedProvider);
