@@ -25,7 +25,7 @@ export class VidkingProvider extends BaseMediaProvider {
 
   private vidkingConfig: VidkingConfig = {
     baseUrl: "https://www.vidking.net",
-    themeColor: "00DF81", // Revara Sprite Green accent
+    themeColor: "ffffff", // Netflix-style white accent
     autoPlay: true,
     nextEpisode: true,
     episodeSelector: true,

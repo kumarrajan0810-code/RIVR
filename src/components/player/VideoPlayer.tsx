@@ -386,31 +386,31 @@ export function VideoPlayer({
     { key: "Escape", handler: () => setShowEpisodesDrawer(false), description: "Close Drawer" },
   ]);
 
-  // Episodes drawer overlay node (rendered in both external embed and direct player modes)
+  // Episodes drawer overlay node (Netflix-style clean white aesthetic)
   const episodesDrawerNode = showEpisodesDrawer && episodes.length > 0 && (
     <div
-      className="fixed inset-0 z-50 flex justify-end bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex justify-end bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
       onClick={() => setShowEpisodesDrawer(false)}
     >
       <div
-        className="relative w-full max-w-md md:max-w-lg h-full bg-[#121212] border-l border-[#262626] flex flex-col shadow-2xl animate-in slide-in-from-right duration-200 overflow-hidden"
+        className="relative w-full max-w-md md:max-w-lg h-full bg-[#121212] border-l border-white/10 flex flex-col shadow-2xl animate-in slide-in-from-right duration-200 overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Drawer Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-[#262626] bg-[#171717] flex-shrink-0">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 bg-[#161616] flex-shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#00DF81]/15 flex items-center justify-center text-[#00DF81]">
-              <ListVideo className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center text-white">
+              <ListVideo className="w-4 h-4 text-white" />
             </div>
             <div>
               <h3 className="text-sm md:text-base font-bold text-white leading-tight">Episodes</h3>
-              <p className="text-[11px] text-[#A1A1AA]">{episodes.length} episodes in this season</p>
+              <p className="text-[11px] text-white/50">{episodes.length} episodes in this season</p>
             </div>
           </div>
           <button
             type="button"
             onClick={() => setShowEpisodesDrawer(false)}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-[#A1A1AA] hover:text-white transition-colors cursor-pointer"
+            className="p-1.5 rounded-lg hover:bg-white/10 text-white/60 hover:text-white transition-colors cursor-pointer"
             title="Close (Esc)"
           >
             <X className="w-5 h-5" />
@@ -419,7 +419,7 @@ export function VideoPlayer({
 
         {/* Season Selector Tabs */}
         {seasons && seasons.length > 1 && (
-          <div className="px-4 py-2.5 border-b border-[#262626] bg-[#141414] overflow-x-auto flex items-center gap-2 flex-shrink-0 scrollbar-none">
+          <div className="px-4 py-2.5 border-b border-white/10 bg-[#141414] overflow-x-auto flex items-center gap-2 flex-shrink-0 scrollbar-none">
             {seasons.map((s) => {
               const isSelected = activeSeason === s.seasonNumber;
               return (
@@ -430,8 +430,8 @@ export function VideoPlayer({
                   className={cn(
                     "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer",
                     isSelected
-                      ? "bg-[#00DF81] text-black font-bold shadow-md shadow-[#00DF81]/25"
-                      : "bg-[#222222] hover:bg-[#2e2e2e] text-[#D4D4D8] hover:text-white"
+                      ? "bg-white text-black font-bold shadow-md shadow-white/10"
+                      : "bg-white/10 hover:bg-white/20 text-white/80 hover:text-white"
                   )}
                 >
                   {s.title || `Season ${s.seasonNumber}`}
@@ -443,10 +443,10 @@ export function VideoPlayer({
 
         {/* Up Next Quick Card */}
         {hasNextEpisode && onNextEpisode && (
-          <div className="p-4 border-b border-[#262626] bg-[#00DF81]/5 flex-shrink-0">
+          <div className="p-4 border-b border-white/10 bg-white/[0.04] flex-shrink-0">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <span className="text-[10px] font-bold text-[#00DF81] uppercase tracking-wider">Up Next</span>
+                <span className="text-[10px] font-bold text-white/70 uppercase tracking-wider">Up Next</span>
                 <p className="text-xs text-white font-medium truncate mt-0.5">
                   {nextEpisodeLabel || "Next Episode"}
                 </p>
@@ -457,7 +457,7 @@ export function VideoPlayer({
                   onNextEpisode();
                   setShowEpisodesDrawer(false);
                 }}
-                className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 cursor-pointer shadow-md shadow-[#00DF81]/20 active:scale-95"
+                className="px-3 py-1.5 rounded-lg bg-white hover:bg-white/90 text-black text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 cursor-pointer shadow-md active:scale-95"
               >
                 <Play className="w-3.5 h-3.5 fill-black" />
                 <span>Play Next</span>
@@ -469,12 +469,12 @@ export function VideoPlayer({
         {/* Scrollable Episodes List */}
         <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
           {episodesLoading ? (
-            <div className="py-20 flex flex-col items-center justify-center text-center text-[#A1A1AA]">
-              <Loader2 className="w-7 h-7 text-[#00DF81] animate-spin mb-3" />
+            <div className="py-20 flex flex-col items-center justify-center text-center text-white/50">
+              <Loader2 className="w-7 h-7 text-white/80 animate-spin mb-3" />
               <p className="text-xs">Loading season episodes...</p>
             </div>
           ) : episodes.length === 0 ? (
-            <div className="py-20 text-center text-[#A1A1AA]">
+            <div className="py-20 text-center text-white/50">
               <p className="text-xs">No episodes found for this season.</p>
             </div>
           ) : (
@@ -498,8 +498,8 @@ export function VideoPlayer({
                   className={cn(
                     "w-full text-left group p-2 rounded-xl transition-all cursor-pointer flex gap-3 items-center border",
                     isPlaying
-                      ? "bg-[#00DF81]/15 border-[#00DF81]/50 text-white"
-                      : "hover:bg-[#1f1f1f] border-transparent text-[#D4D4D8] hover:text-white"
+                      ? "bg-white/10 border-white/30 text-white shadow-sm"
+                      : "hover:bg-white/[0.06] border-transparent text-white/75 hover:text-white"
                   )}
                 >
                   {/* Thumbnail */}
@@ -516,11 +516,11 @@ export function VideoPlayer({
                     ) : null}
                     <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/55 transition-colors">
                       {isPlaying ? (
-                        <div className="w-6 h-6 rounded-full bg-[#00DF81] flex items-center justify-center text-black shadow-md">
+                        <div className="w-6 h-6 rounded-full bg-white flex items-center justify-center text-black shadow-md">
                           <Play className="w-3 h-3 fill-black ml-0.5" />
                         </div>
                       ) : (
-                        <div className="w-6 h-6 rounded-full bg-black/70 group-hover:bg-[#00DF81] text-white group-hover:text-black flex items-center justify-center transition-colors">
+                        <div className="w-6 h-6 rounded-full bg-black/70 group-hover:bg-white text-white group-hover:text-black flex items-center justify-center transition-colors">
                           <Play className="w-3 h-3 fill-current ml-0.5" />
                         </div>
                       )}
@@ -530,16 +530,16 @@ export function VideoPlayer({
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
-                      <span className="text-xs font-bold text-[#00DF81]">
+                      <span className="text-xs font-bold text-white/90">
                         E{ep.episodeNumber}
                       </span>
                       {isPlaying && (
-                        <span className="text-[9px] font-extrabold bg-[#00DF81] text-black px-1.5 py-0.5 rounded uppercase tracking-wider">
+                        <span className="text-[9px] font-extrabold bg-white text-black px-1.5 py-0.5 rounded uppercase tracking-wider shadow-sm">
                           Now Playing
                         </span>
                       )}
                       {ep.runtime && (
-                        <span className="text-[11px] text-[#A1A1AA] ml-auto flex-shrink-0">
+                        <span className="text-[11px] text-white/40 ml-auto flex-shrink-0">
                           {formatRuntime(ep.runtime)}
                         </span>
                       )}
@@ -547,13 +547,13 @@ export function VideoPlayer({
                     <h4
                       className={cn(
                         "text-xs sm:text-sm font-medium truncate",
-                        isPlaying ? "text-[#00DF81] font-semibold" : "text-white group-hover:text-[#00DF81] transition-colors"
+                        isPlaying ? "text-white font-bold" : "text-white/90 group-hover:text-white transition-colors"
                       )}
                     >
                       {ep.title}
                     </h4>
                     {ep.overview && (
-                      <p className="text-[11px] text-[#A1A1AA] line-clamp-1 mt-0.5">
+                      <p className="text-[11px] text-white/50 line-clamp-1 mt-0.5">
                         {ep.overview}
                       </p>
                     )}
@@ -619,7 +619,7 @@ export function VideoPlayer({
                       e.stopPropagation();
                       onNextEpisode();
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
+                    className="px-3 py-1.5 rounded-lg bg-white hover:bg-white/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
                     title={nextEpisodeLabel ? `Next: ${nextEpisodeLabel} (Shift+N)` : "Next Episode (Shift+N)"}
                   >
                     <SkipForward className="w-3.5 h-3.5 fill-black" />
@@ -637,12 +637,12 @@ export function VideoPlayer({
                   className={cn(
                     "px-3 py-1.5 rounded-lg border backdrop-blur-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-lg",
                     showEpisodesDrawer
-                      ? "bg-[#00DF81] text-black border-[#00DF81] font-bold"
-                      : "bg-black/60 hover:bg-black/90 border-white/10 text-white"
+                      ? "bg-white text-black border-white font-bold"
+                      : "bg-black/60 hover:bg-black/90 border-white/15 text-white"
                   )}
                   title="Browse Episodes (E)"
                 >
-                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-[#00DF81]")} />
+                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-white")} />
                   <span>Episodes</span>
                 </button>
               </>
@@ -670,7 +670,7 @@ export function VideoPlayer({
                         }}
                         className={cn(
                           "w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between",
-                          s.id === stream.id ? "bg-[#00DF81] text-black font-bold" : "text-[#B3B3B2] hover:text-white hover:bg-[#262626]"
+                          s.id === stream.id ? "bg-white text-black font-bold" : "text-[#B3B3B2] hover:text-white hover:bg-white/10"
                         )}
                       >
                         <span className="truncate">{s.title}</span>
@@ -701,8 +701,8 @@ export function VideoPlayer({
         {/* Iframe player with full fullscreen permissions */}
         <div className="w-full h-full flex-1 relative bg-black">
           {showResumeBanner && (
-            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-[#00DF81]/40 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium animate-pulse">
-              <span className="w-2 h-2 rounded-full bg-[#00DF81]" />
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-white/20 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-white" />
               <span>
                 Resumed from {Math.floor(startAt / 60)}:{(Math.floor(startAt % 60)).toString().padStart(2, "0")}
               </span>
@@ -748,8 +748,8 @@ export function VideoPlayer({
 
       {/* Resume Indicator Banner */}
       {showResumeBanner && (
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-[#00DF81]/40 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium pointer-events-none">
-          <span className="w-2 h-2 rounded-full bg-[#00DF81] animate-ping" />
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-white/20 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium pointer-events-none">
+          <span className="w-2 h-2 rounded-full bg-white animate-ping" />
           <span>
             Resumed from {Math.floor(startAt / 60)}:{(Math.floor(startAt % 60)).toString().padStart(2, "0")}
           </span>
@@ -785,7 +785,7 @@ export function VideoPlayer({
                       e.stopPropagation();
                       onNextEpisode();
                     }}
-                    className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
+                    className="px-3 py-1.5 rounded-lg bg-white hover:bg-white/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
                     title={nextEpisodeLabel ? `Next: ${nextEpisodeLabel} (Shift+N)` : "Next Episode (Shift+N)"}
                   >
                     <SkipForward className="w-3.5 h-3.5 fill-black" />
@@ -803,12 +803,12 @@ export function VideoPlayer({
                   className={cn(
                     "px-3 py-1.5 rounded-lg border backdrop-blur-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-lg",
                     showEpisodesDrawer
-                      ? "bg-[#00DF81] text-black border-[#00DF81] font-bold"
-                      : "bg-black/60 hover:bg-black/90 border-white/10 text-white"
+                      ? "bg-white text-black border-white font-bold"
+                      : "bg-black/60 hover:bg-black/90 border-white/15 text-white"
                   )}
                   title="Browse Episodes (E)"
                 >
-                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-[#00DF81]")} />
+                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-white")} />
                   <span>Episodes</span>
                 </button>
               </>
@@ -836,7 +836,7 @@ export function VideoPlayer({
                         }}
                         className={cn(
                           "w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors flex items-center justify-between",
-                          s.id === stream.id ? "bg-[#00DF81] text-black font-bold" : "text-[#B3B3B2] hover:text-white hover:bg-[#262626]"
+                          s.id === stream.id ? "bg-white text-black font-bold" : "text-[#B3B3B2] hover:text-white hover:bg-white/10"
                         )}
                       >
                         <span className="truncate">{s.title}</span>
@@ -860,9 +860,9 @@ export function VideoPlayer({
             onMouseMove={handleProgressHover}
             onMouseLeave={() => setHoverTime(null)}
           >
-            {/* Progress fill */}
+            {/* Progress fill (clean Netflix white) */}
             <div
-              className="absolute top-0 left-0 bottom-0 bg-accent rounded-full"
+              className="absolute top-0 left-0 bottom-0 bg-white rounded-full shadow-sm"
               style={{ width: `${progressPct}%` }}
             />
 
@@ -875,7 +875,7 @@ export function VideoPlayer({
             {/* Hover tooltip */}
             {hoverTime !== null && (
               <div
-                className="absolute bottom-full mb-2 -translate-x-1/2 px-2 py-1 rounded bg-surface-elevated text-foreground text-xs font-mono shadow-lg pointer-events-none"
+                className="absolute bottom-full mb-2 -translate-x-1/2 px-2 py-1 rounded bg-[#1e1e1e] border border-white/10 text-white text-xs font-mono shadow-lg pointer-events-none"
                 style={{ left: `${hoverX}px` }}
               >
                 {formatTime(hoverTime)}
@@ -938,7 +938,7 @@ export function VideoPlayer({
                       step="0.05"
                       value={isMuted ? 0 : volume}
                       onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
-                      className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-accent"
+                      className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-white"
                     />
                   </div>
                 )}

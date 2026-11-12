@@ -25,7 +25,7 @@ export class VidLinkProvider extends BaseMediaProvider {
     episode?: number;
   }): string | null {
     const { mediaType, tmdbId, anilistId, season = 1, episode = 1 } = params;
-    const commonParams = "primaryColor=00df81&secondaryColor=101010&iconColor=00df81&autoplay=true";
+    const commonParams = "primaryColor=ffffff&secondaryColor=101010&iconColor=ffffff&autoplay=true";
 
     if (mediaType === MediaType.ANIME && anilistId) {
       return `${this.baseUrl}/anime/${anilistId}/${episode}?${commonParams}`;

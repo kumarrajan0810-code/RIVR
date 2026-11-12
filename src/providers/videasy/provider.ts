@@ -26,7 +26,7 @@ export class VideasyProvider extends BaseMediaProvider {
 
   private videasyConfig: VideasyConfig = {
     baseUrl: "https://player.videasy.net",
-    themeColor: "00DF81", // Revara Sprite Green accent
+    themeColor: "ffffff", // Netflix-style white accent
     enableNextEpisode: true,
     enableEpisodeSelector: true,
     autoplayNextEpisode: true,
