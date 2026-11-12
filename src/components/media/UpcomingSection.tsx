@@ -50,7 +50,7 @@ function UpcomingCard({ item }: { item: MediaItem }) {
     <div className="group relative flex-shrink-0 w-[165px] sm:w-[185px] md:w-[200px] block transition-transform hover:-translate-y-1">
       <Link href={href} className="block">
         {/* Poster */}
-        <div className="relative aspect-poster rounded-xl overflow-hidden bg-surface-elevated mb-2 border border-white/10 group-hover:border-accent/40 transition-colors">
+        <div className="relative aspect-poster rounded-xl overflow-hidden bg-surface-elevated mb-2 border border-white/10 group-hover:border-white/30 transition-colors">
           {imgSrc ? (
             <Image
               src={imgSrc}
@@ -68,8 +68,8 @@ function UpcomingCard({ item }: { item: MediaItem }) {
 
           {/* Top Release Date Pill */}
           <div className="absolute top-2 left-2 z-10">
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/85 text-accent border border-accent/30 shadow-md backdrop-blur-md flex items-center gap-1">
-              <BellRing className="w-3 h-3 text-accent" />
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-black/85 text-zinc-200 border border-white/15 shadow-md backdrop-blur-md flex items-center gap-1">
+              <BellRing className="w-3 h-3 text-zinc-300" />
               <span>{releaseStr}</span>
             </span>
           </div>
@@ -86,13 +86,13 @@ function UpcomingCard({ item }: { item: MediaItem }) {
         </div>
 
         {/* Info */}
-        <h3 className="text-sm font-semibold text-foreground line-clamp-1 group-hover:text-accent transition-colors">
+        <h3 className="text-sm font-semibold text-foreground line-clamp-1 group-hover:text-white transition-colors">
           {item.title}
         </h3>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
           {item.genres[0] && <span>{item.genres[0].name}</span>}
           {item.genres[0] && <span>•</span>}
-          <span className="text-accent/90 font-medium">Soon</span>
+          <span className="text-zinc-300 font-medium">Soon</span>
         </div>
       </Link>
 
@@ -105,15 +105,15 @@ function UpcomingCard({ item }: { item: MediaItem }) {
             toggleItem(item);
           }}
           className={cn(
-            "w-full py-1.5 px-2.5 rounded-lg text-xs font-semibold transition-all flex items-center justify-center gap-1.5 cursor-pointer border",
+            "w-full py-1.5 px-2.5 rounded-lg text-xs font-medium transition-all flex items-center justify-center gap-1.5 cursor-pointer border",
             inList
-              ? "bg-accent/15 border-accent text-accent"
-              : "bg-[#181818] border-white/10 text-white/80 hover:text-white hover:bg-[#252525] hover:border-white/20"
+              ? "bg-[#2a2a2a] border-white/20 text-white font-semibold"
+              : "bg-zinc-900/80 border-white/10 text-zinc-300 hover:text-white hover:bg-zinc-800 hover:border-white/20"
           )}
         >
           {inList ? (
             <>
-              <Check className="w-3.5 h-3.5 text-accent" />
+              <Check className="w-3.5 h-3.5 text-white" />
               <span>In Wishlist</span>
             </>
           ) : (
@@ -190,8 +190,8 @@ export function UpcomingSection({ className }: UpcomingSectionProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 px-1">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-accent/10 text-accent">
-              <CalendarClock className="w-5 h-5 text-accent" />
+            <span className="p-1.5 rounded-lg bg-white/10 text-white">
+              <CalendarClock className="w-5 h-5 text-white" />
             </span>
             <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
               Coming Soon & Upcoming Releases
@@ -202,18 +202,18 @@ export function UpcomingSection({ className }: UpcomingSectionProps) {
           </p>
         </div>
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar bg-[#151515] p-1 rounded-xl border border-white/10">
+        {/* Filter Tabs (Matching Floating Pill Theme) */}
+        <div className="flex items-center gap-1 overflow-x-auto no-scrollbar bg-[#121212] p-1 rounded-full border border-white/10">
           {filterTabs.map((tab) => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setFilter(tab.id)}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap cursor-pointer",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer",
                 filter === tab.id
-                  ? "bg-accent text-black font-bold shadow-md shadow-[#00DF81]/20"
-                  : "text-muted-foreground hover:text-white"
+                  ? "bg-[#2a2a2a] text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white"
               )}
             >
               {tab.icon}

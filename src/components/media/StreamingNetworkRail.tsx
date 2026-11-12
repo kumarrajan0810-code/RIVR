@@ -239,19 +239,19 @@ export function StreamingNetworkRail() {
 
                     {/* Play Hover Bubble */}
                     <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
-                      <div className="w-12 h-12 rounded-full bg-[#00DF81] flex items-center justify-center shadow-xl shadow-[#00DF81]/30">
+                      <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
                         <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                       </div>
                     </div>
                   </div>
 
                   {/* Title & Metadata */}
-                  <h3 className="text-sm font-semibold text-[#F2F2F2] line-clamp-1 group-hover:text-[#00DF81] transition-colors">
+                  <h3 className="text-sm font-semibold text-[#F2F2F2] line-clamp-1 group-hover:text-white transition-colors">
                     {item.title}
                   </h3>
                   <div className="flex items-center gap-2 text-xs text-[#81807E] mt-0.5 font-medium">
                     {item.rating ? (
-                      <span className="flex items-center gap-1 text-[#00DF81] font-semibold">
+                      <span className="flex items-center gap-1 text-zinc-300 font-semibold">
                         <Star className="w-3 h-3 fill-current" />
                         {item.rating.toFixed(1)}
                       </span>

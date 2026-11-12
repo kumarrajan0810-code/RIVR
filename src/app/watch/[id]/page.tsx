@@ -7,6 +7,8 @@ import { videasyProvider } from "@/providers/videasy/provider";
 import { vidkingProvider } from "@/providers/vidking/provider";
 import { vidlinkProvider } from "@/providers/vidlink/provider";
 import { vidyProvider } from "@/providers/vidy/provider";
+import { vidRiftProvider } from "@/providers/vidrift/provider";
+import { atlanticProvider } from "@/providers/atlantic/provider";
 import { cineProProvider } from "@/providers/cinepro/provider";
 import { autoEmbedProvider } from "@/providers/autoembed/provider";
 import { debridProvider } from "@/providers/debrid/provider";
@@ -267,6 +269,8 @@ export default function WatchPage({ params }: { params: Promise<{ id: string }> 
       const results = await Promise.allSettled([
         debridProvider.getStreams(id, episodeId, media?.externalIds?.imdbId, debridApiKey),
         vidyProvider.getStreams(id, episodeId),
+        vidRiftProvider.getStreams(id, episodeId),
+        atlanticProvider.getStreams(id, episodeId),
         videasyProvider.getStreams(id, episodeId),
         vidlinkProvider.getStreams(id, episodeId),
         vidkingProvider.getStreams(id, episodeId),

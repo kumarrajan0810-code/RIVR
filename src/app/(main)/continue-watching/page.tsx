@@ -82,7 +82,7 @@ export default function ContinueWatchingPage() {
 
                   {/* Play Overlay */}
                   <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all flex items-center justify-center">
-                    <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-2xl shadow-[#00DF81]/40 transform group-hover:scale-110 transition-transform">
+                    <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl transform group-hover:scale-110 transition-transform">
                       <Play className="w-5 h-5 text-black fill-black ml-0.5" />
                     </div>
                   </div>
@@ -116,11 +116,11 @@ export default function ContinueWatchingPage() {
                 {/* Card Body */}
                 <div className="p-3.5 flex-1 flex flex-col justify-between space-y-3">
                   <div>
-                    <h3 className="font-semibold text-foreground text-sm line-clamp-1 group-hover:text-accent transition-colors">
+                    <h3 className="font-semibold text-foreground text-sm line-clamp-1 group-hover:text-white transition-colors">
                       {item.title}
                     </h3>
                     {episodeLabel && (
-                      <p className="text-xs text-accent font-medium mt-0.5 line-clamp-1">
+                      <p className="text-xs text-zinc-300 font-medium mt-0.5 line-clamp-1">
                         {episodeLabel}
                         {progress.episodeTitle && progress.episodeTitle !== episodeLabel ? ` — ${progress.episodeTitle}` : ""}
                       </p>
@@ -137,7 +137,7 @@ export default function ContinueWatchingPage() {
                   <div className="flex items-center gap-2 pt-1 border-t border-white/5">
                     <Link
                       href={resumeUrl}
-                      className="flex-1 py-1.5 px-3 rounded-lg bg-accent text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-[#00DF81]/15 hover:bg-[#00DF81]/90 transition-all"
+                      className="flex-1 py-1.5 px-3 rounded-lg bg-white text-black font-bold text-xs flex items-center justify-center gap-1.5 shadow-md hover:bg-white/90 transition-all"
                     >
                       <Play className="w-3.5 h-3.5 fill-black" />
                       <span>Resume</span>

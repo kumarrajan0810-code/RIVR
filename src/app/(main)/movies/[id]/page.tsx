@@ -146,7 +146,7 @@ export default function MovieDetailPage() {
                   return (
                     <>
                       <Link href={`/watch/${movie.id}?t=${Math.floor(savedProgress.position)}`}>
-                        <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-[#00DF81]/25 flex items-center gap-2">
+                        <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-white/10 flex items-center gap-2">
                           <Play className="w-5 h-5 fill-black text-black" />
                           <span>Resume Movie</span>
                           <span className="text-xs bg-black/25 text-black px-2 py-0.5 rounded-full font-semibold">
@@ -165,7 +165,7 @@ export default function MovieDetailPage() {
 
                 return (
                   <Link href={`/watch/${movie.id}`}>
-                    <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-[#00DF81]/25">
+                    <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-white/10">
                       <Play className="w-5 h-5 fill-black text-black" />
                       Watch Now
                     </Button>

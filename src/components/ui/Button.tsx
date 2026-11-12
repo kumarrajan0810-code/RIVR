@@ -27,7 +27,7 @@ export function Button({
         "disabled:opacity-50 disabled:cursor-not-allowed",
         // Variants
         variant === "primary" &&
-          "bg-accent text-black font-bold hover:bg-accent-hover active:scale-[0.98] shadow-lg shadow-accent/25",
+          "bg-white text-black font-bold hover:bg-white/90 active:scale-[0.98] shadow-lg shadow-white/10",
         variant === "secondary" &&
           "bg-surface text-foreground hover:bg-surface-hover border border-border backdrop-blur-sm",
         variant === "ghost" &&

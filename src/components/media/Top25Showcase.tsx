@@ -85,7 +85,7 @@ function Top25Card({ item, rank }: { item: MediaItem; rank: number }) {
                 ? "bg-gradient-to-r from-slate-200 to-slate-400 text-black shadow-slate-400/30"
                 : isBronze
                   ? "bg-gradient-to-r from-amber-700 to-amber-900 text-white shadow-amber-900/30"
-                  : "bg-black/85 text-accent border-r border-b border-accent/30 font-bold"
+                  : "bg-black/85 text-zinc-200 border-r border-b border-white/15 font-bold"
           )}
         >
           {isGold && <Trophy className="w-3.5 h-3.5 text-black fill-black inline" />}
@@ -94,7 +94,7 @@ function Top25Card({ item, rank }: { item: MediaItem; rank: number }) {
 
         {/* Rating pill */}
         {item.rating && (
-          <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-bold text-accent border border-accent/20">
+          <div className="absolute top-2 right-2 bg-black/80 backdrop-blur-md px-1.5 py-0.5 rounded text-[11px] font-bold text-zinc-200 border border-white/15">
             ★ {item.rating.toFixed(1)}
           </div>
         )}
@@ -102,7 +102,7 @@ function Top25Card({ item, rank }: { item: MediaItem; rank: number }) {
         {/* Hover play */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex items-center justify-center">
           <div className="opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
-            <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-2xl shadow-[#00DF81]/40">
+            <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
               <Play className="w-5 h-5 text-black fill-black ml-0.5" />
             </div>
           </div>
@@ -185,8 +185,8 @@ export function Top25Showcase({ className }: Top25ShowcaseProps) {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-5 px-1">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <span className="p-1.5 rounded-lg bg-accent/10 text-accent">
-              <Trophy className="w-5 h-5 text-accent" />
+            <span className="p-1.5 rounded-lg bg-white/10 text-white">
+              <Trophy className="w-5 h-5 text-white" />
             </span>
             <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground">
               Top 25 Leaderboard
@@ -197,18 +197,18 @@ export function Top25Showcase({ className }: Top25ShowcaseProps) {
           </p>
         </div>
 
-        {/* Category & Time Window Filter Controls */}
+        {/* Category & Time Window Filter Controls (Matching Floating Pill Theme) */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
           {/* Category Tabs */}
-          <div className="flex items-center bg-[#151515] p-1 rounded-xl border border-white/10">
+          <div className="flex items-center gap-1 bg-[#121212] p-1 rounded-full border border-white/10">
             <button
               type="button"
               onClick={() => setCategory("movies")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
                 category === "movies"
-                  ? "bg-accent text-black font-bold shadow-md shadow-[#00DF81]/20"
-                  : "text-muted-foreground hover:text-white"
+                  ? "bg-[#2a2a2a] text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white"
               )}
             >
               <Film className="w-3.5 h-3.5" />
@@ -218,10 +218,10 @@ export function Top25Showcase({ className }: Top25ShowcaseProps) {
               type="button"
               onClick={() => setCategory("anime")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
                 category === "anime"
-                  ? "bg-accent text-black font-bold shadow-md shadow-[#00DF81]/20"
-                  : "text-muted-foreground hover:text-white"
+                  ? "bg-[#2a2a2a] text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white"
               )}
             >
               <Sparkles className="w-3.5 h-3.5" />
@@ -231,10 +231,10 @@ export function Top25Showcase({ className }: Top25ShowcaseProps) {
               type="button"
               onClick={() => setCategory("dramas")}
               className={cn(
-                "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all cursor-pointer",
+                "flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer",
                 category === "dramas"
-                  ? "bg-accent text-black font-bold shadow-md shadow-[#00DF81]/20"
-                  : "text-muted-foreground hover:text-white"
+                  ? "bg-[#2a2a2a] text-white shadow-sm"
+                  : "text-zinc-400 hover:text-white"
               )}
             >
               <Tv className="w-3.5 h-3.5" />
@@ -243,17 +243,17 @@ export function Top25Showcase({ className }: Top25ShowcaseProps) {
           </div>
 
           {/* Time Window Pills */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar bg-[#121212] p-1 rounded-full border border-white/10">
             {windowOptions.map((opt) => (
               <button
                 key={opt.id}
                 type="button"
                 onClick={() => setWindow(opt.id)}
                 className={cn(
-                  "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium border transition-all whitespace-nowrap cursor-pointer",
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all whitespace-nowrap cursor-pointer",
                   window === opt.id
-                    ? "bg-[#252525] border-accent/50 text-accent font-semibold"
-                    : "bg-[#141414] border-white/5 text-muted-foreground hover:text-white hover:border-white/20"
+                    ? "bg-[#2a2a2a] text-white font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-white"
                 )}
               >
                 {opt.icon}

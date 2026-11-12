@@ -27,7 +27,7 @@ export function EpisodeCard({ episode, progress: propProgress, className }: Epis
       href={watchHref}
       className={cn(
         "group flex gap-2.5 sm:gap-4 p-2 sm:p-3 rounded-xl hover:bg-surface-hover transition-all duration-200",
-        progress && progress.position > 0 && "bg-white/[0.02] border border-[#00DF81]/20",
+        progress && progress.position > 0 && "bg-white/[0.02] border border-white/15",
         className
       )}
     >
@@ -50,7 +50,7 @@ export function EpisodeCard({ episode, progress: propProgress, className }: Epis
         {/* Play overlay */}
         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all flex items-center justify-center">
           <div className="opacity-0 group-hover:opacity-100 transition-all transform scale-75 group-hover:scale-100">
-            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center shadow-lg shadow-[#00DF81]/30">
+            <div className="w-10 h-10 rounded-full bg-white text-black flex items-center justify-center shadow-lg">
               <Play className="w-4 h-4 text-black fill-black ml-0.5" />
             </div>
           </div>
@@ -68,11 +68,11 @@ export function EpisodeCard({ episode, progress: propProgress, className }: Epis
       <div className="flex-1 min-w-0 py-1">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h4 className="text-sm font-medium text-foreground group-hover:text-accent transition-colors flex items-center gap-2">
+            <h4 className="text-sm font-medium text-foreground group-hover:text-white transition-colors flex items-center gap-2">
               <span className="text-muted-foreground">E{episode.episodeNumber}</span>
               <span>{episode.title}</span>
               {progress && progress.position > 0 && (
-                <span className="text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                <span className="text-[10px] font-semibold text-zinc-200 bg-white/10 px-1.5 py-0.5 rounded border border-white/20">
                   {Math.floor(progress.position / 60)}m watched
                 </span>
               )}
@@ -82,7 +82,7 @@ export function EpisodeCard({ episode, progress: propProgress, className }: Epis
             )}
           </div>
           {episode.rating && (
-            <span className="text-xs text-[#00DF81] font-semibold flex-shrink-0">
+            <span className="text-xs text-zinc-300 font-semibold flex-shrink-0">
               ★ {episode.rating.toFixed(1)}
             </span>
           )}

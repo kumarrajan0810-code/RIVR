@@ -86,11 +86,15 @@ import { debridProvider } from "../debrid/provider";
 import { aniListProvider } from "../anilist/provider";
 import { tmdbProvider } from "../tmdb/provider";
 import { vidyProvider } from "../vidy/provider";
+import { vidRiftProvider } from "../vidrift/provider";
+import { atlanticProvider } from "../atlantic/provider";
 
 providerRegistry.register(aniListProvider);
 providerRegistry.register(tmdbProvider);
 providerRegistry.register(debridProvider);
 providerRegistry.register(vidyProvider);
+providerRegistry.register(vidRiftProvider);
+providerRegistry.register(atlanticProvider);
 providerRegistry.register(videasyProvider);
 providerRegistry.register(vidlinkProvider);
 providerRegistry.register(vidkingProvider);

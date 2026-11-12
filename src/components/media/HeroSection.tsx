@@ -108,7 +108,7 @@ export function HeroSection({ items, onAddToList, isInWatchlist }: HeroSectionPr
         {/* Actions */}
         <div className="flex items-center flex-wrap gap-2.5 sm:gap-3">
           <Link href={`/watch/${item.id}`}>
-            <Button variant="primary" size="lg" className="gap-2 font-bold text-black px-4 sm:px-6 shadow-xl shadow-[#00DF81]/25 text-sm sm:text-base">
+            <Button variant="primary" size="lg" className="gap-2 font-bold text-black px-4 sm:px-6 shadow-xl shadow-white/10 text-sm sm:text-base">
               <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-black text-black" />
               Watch Now
             </Button>

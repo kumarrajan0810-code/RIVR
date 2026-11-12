@@ -72,12 +72,12 @@ export function MediaCard({ item, progress, showType, directResume = true, class
           {/* Hover overlay with Quick Resume Play icon */}
           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/50 transition-all duration-300 flex flex-col items-center justify-center gap-1.5">
             <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 transform scale-75 group-hover:scale-100">
-              <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-2xl shadow-[#00DF81]/40">
+              <div className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center shadow-2xl">
                 <Play className="w-5 h-5 text-black fill-black ml-0.5" />
               </div>
             </div>
             {progress && (
-              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 text-[10px] font-bold text-accent uppercase tracking-wider bg-black/80 px-2 py-0.5 rounded-full border border-accent/30">
+              <span className="opacity-0 group-hover:opacity-100 transition-all duration-300 text-[10px] font-bold text-white uppercase tracking-wider bg-black/80 px-2 py-0.5 rounded-full border border-white/20">
                 Resume
               </span>
             )}
@@ -93,7 +93,7 @@ export function MediaCard({ item, progress, showType, directResume = true, class
           {/* Episode in progress pill */}
           {episodeLabel && (
             <div className="absolute top-2 right-2">
-              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/75 text-accent border border-accent/30 shadow-md">
+              <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-black/75 text-zinc-200 border border-white/20 shadow-md">
                 {episodeLabel}
               </span>
             </div>
@@ -117,12 +117,12 @@ export function MediaCard({ item, progress, showType, directResume = true, class
         </div>
 
         {/* Info */}
-        <h3 className="text-sm font-medium text-foreground line-clamp-1 group-hover:text-accent transition-colors">
+        <h3 className="text-sm font-medium text-foreground line-clamp-1 group-hover:text-white transition-colors">
           {item.title}
         </h3>
         <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-0.5">
           {progress ? (
-            <span className="text-accent font-medium">
+            <span className="text-zinc-300 font-medium">
               {episodeLabel ? `${episodeLabel} • ` : ""}{Math.floor((progress.position || 0) / 60)}m watched
             </span>
           ) : (
