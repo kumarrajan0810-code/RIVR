@@ -85,10 +85,12 @@ import { cineProProvider } from "../cinepro/provider";
 import { debridProvider } from "../debrid/provider";
 import { aniListProvider } from "../anilist/provider";
 import { tmdbProvider } from "../tmdb/provider";
+import { vidyProvider } from "../vidy/provider";
 
 providerRegistry.register(aniListProvider);
 providerRegistry.register(tmdbProvider);
 providerRegistry.register(debridProvider);
+providerRegistry.register(vidyProvider);
 providerRegistry.register(videasyProvider);
 providerRegistry.register(vidlinkProvider);
 providerRegistry.register(vidkingProvider);
