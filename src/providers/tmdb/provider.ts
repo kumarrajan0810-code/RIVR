@@ -71,6 +71,7 @@ export class TMDBProvider extends BaseMediaProvider {
 
   async search(query: string, options?: SearchOptions): Promise<SearchResult> {
     const page = options?.page || 1;
+    const year = options?.year;
     const genre = options?.genre?.toLowerCase().trim();
     const movieGenreId = genre ? TMDB_MOVIE_GENRES[genre] || (/^\d+$/.test(genre) ? genre : undefined) : undefined;
     const tvGenreId = genre ? TMDB_TV_GENRES[genre] || (/^\d+$/.test(genre) ? genre : undefined) : undefined;
@@ -78,17 +79,17 @@ export class TMDBProvider extends BaseMediaProvider {
     // Discovery / Genre-filtering mode when no text query is passed
     if (!query.trim()) {
       if (options?.type === MediaType.MOVIE) {
-        const items = await tmdbClient.getPopularMovies(page, movieGenreId);
+        const items = await tmdbClient.getPopularMovies(page, movieGenreId, year);
         return { items, total: items.length * 5, page, totalPages: 5 };
       }
       if (options?.type === MediaType.SERIES) {
-        const items = await tmdbClient.getPopularTV(page, tvGenreId);
+        const items = await tmdbClient.getPopularTV(page, tvGenreId, year);
         return { items, total: items.length * 5, page, totalPages: 5 };
       }
 
       const [movies, tv] = await Promise.all([
-        tmdbClient.getPopularMovies(page, movieGenreId),
-        tmdbClient.getPopularTV(page, tvGenreId),
+        tmdbClient.getPopularMovies(page, movieGenreId, year),
+        tmdbClient.getPopularTV(page, tvGenreId, year),
       ]);
       const combined = [...movies, ...tv];
       return {
@@ -101,7 +102,7 @@ export class TMDBProvider extends BaseMediaProvider {
 
     // Text search query
     if (options?.type === MediaType.SERIES) {
-      const res = await tmdbClient.searchTV(query, page);
+      const res = await tmdbClient.searchTV(query, page, year);
       if (tvGenreId) {
         res.items = res.items.filter((i) =>
           i.genres.some((g) => g.id === tvGenreId || g.name.toLowerCase().includes(genre!))
@@ -110,7 +111,7 @@ export class TMDBProvider extends BaseMediaProvider {
       return res;
     }
     if (options?.type === MediaType.MOVIE) {
-      const res = await tmdbClient.searchMovies(query, page);
+      const res = await tmdbClient.searchMovies(query, page, year);
       if (movieGenreId) {
         res.items = res.items.filter((i) =>
           i.genres.some((g) => g.id === movieGenreId || g.name.toLowerCase().includes(genre!))
@@ -121,8 +122,8 @@ export class TMDBProvider extends BaseMediaProvider {
 
     // Search both
     const [moviesRes, tvRes] = await Promise.all([
-      tmdbClient.searchMovies(query, page),
-      tmdbClient.searchTV(query, page),
+      tmdbClient.searchMovies(query, page, year),
+      tmdbClient.searchTV(query, page, year),
     ]);
 
     let combined = [...moviesRes.items, ...tvRes.items];

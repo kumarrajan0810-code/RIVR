@@ -14,6 +14,7 @@ interface HistoryState {
   removeProgress: (mediaId: string) => void;
   clearHistory: () => void;
   getProgress: (mediaId: string, episodeId?: string) => WatchProgress | undefined;
+  getResumeUrl: (item: ContinueWatchingItem | { id: string; progress?: WatchProgress }) => string;
 }
 
 export const useHistoryStore = create<HistoryState>()(
@@ -45,6 +46,19 @@ export const useHistoryStore = create<HistoryState>()(
           return true;
         });
         return found?.progress;
+      },
+      getResumeUrl: (item) => {
+        const progress = "progress" in item ? item.progress : undefined;
+        if (!progress) return `/watch/${item.id}`;
+        const params = new URLSearchParams();
+        if (progress.episodeId) {
+          params.set("episode", progress.episodeId);
+        }
+        if (progress.position > 0) {
+          params.set("t", Math.floor(progress.position).toString());
+        }
+        const query = params.toString();
+        return query ? `/watch/${item.id}?${query}` : `/watch/${item.id}`;
       },
     }),
     {

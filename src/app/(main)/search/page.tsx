@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Search, X, Film, Tv, Sparkles, Loader2 } from "lucide-react";
 import { MediaGrid } from "@/components/media/MediaGrid";
+import { YearFilter } from "@/components/media/YearFilter";
 import { NoResultsState } from "@/components/common/EmptyState";
 import { useDebounce } from "@/hooks/useDebounce";
 import { cn } from "@/lib/utils";
@@ -13,21 +14,26 @@ type FilterType = "all" | MediaType;
 export default function SearchPage() {
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState<FilterType>("all");
+  const [selectedYear, setSelectedYear] = useState<number | null>(null);
   const [results, setResults] = useState<MediaItem[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const debouncedQuery = useDebounce(query, 350);
 
   useEffect(() => {
     async function performSearch() {
-      if (!debouncedQuery.trim()) {
+      if (!debouncedQuery.trim() && !selectedYear) {
         setResults([]);
         return;
       }
 
       setIsLoading(true);
       try {
-        const typeParam = filter !== "all" ? `&type=${filter}` : "";
-        const res = await fetch(`/api/media/search?q=${encodeURIComponent(debouncedQuery)}${typeParam}`);
+        const params = new URLSearchParams();
+        if (debouncedQuery.trim()) params.set("q", debouncedQuery.trim());
+        if (filter !== "all") params.set("type", filter);
+        if (selectedYear) params.set("year", selectedYear.toString());
+
+        const res = await fetch(`/api/media/search?${params.toString()}`);
         if (res.ok) {
           const data = await res.json();
           setResults(data.items || []);
@@ -43,7 +49,7 @@ export default function SearchPage() {
     }
 
     performSearch();
-  }, [debouncedQuery, filter]);
+  }, [debouncedQuery, filter, selectedYear]);
 
   const filterButtons: { type: FilterType; label: string; icon: React.ReactNode }[] = [
     { type: "all", label: "All", icon: null },
@@ -94,6 +100,11 @@ export default function SearchPage() {
             </button>
           ))}
         </div>
+      )}
+
+      {/* Year filter when active or searched */}
+      {(debouncedQuery.trim() || selectedYear) && (
+        <YearFilter selectedYear={selectedYear} onSelectYear={setSelectedYear} />
       )}
 
       {/* Results */}

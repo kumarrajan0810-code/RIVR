@@ -12,6 +12,7 @@ import { EpisodeList } from "@/components/media/EpisodeList";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { ErrorState } from "@/components/common/EmptyState";
 import { useWatchlistStore } from "@/stores/watchlistStore";
+import { useWatchHistory } from "@/hooks/useWatchHistory";
 import { MOCK_ANIME, getAllMedia } from "@/providers/mock/data";
 import type { MediaItem } from "@/providers/core/types";
 
@@ -19,6 +20,7 @@ export default function AnimeDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
   const { toggleItem, isInList } = useWatchlistStore();
+  const { getProgress } = useWatchHistory();
 
   const [anime, setAnime] = useState<MediaItem | null>(null);
   const [loading, setLoading] = useState(true);
@@ -107,12 +109,44 @@ export default function AnimeDetailPage() {
               {anime.genres.map((genre) => <Badge key={genre.id}>{genre.name}</Badge>)}
             </div>
 
-            <div className="flex items-center gap-3">
-              <Link href={`/watch/${anime.id}?episode=${episodes[0]?.id || "ep-1"}`}>
-                <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-[#00DF81]/25">
-                  <Play className="w-5 h-5 fill-black text-black" /> Watch Now
-                </Button>
-              </Link>
+            <div className="flex items-center flex-wrap gap-3">
+              {(() => {
+                const savedProgress = anime ? getProgress(anime.id) : undefined;
+                if (savedProgress && (savedProgress.position > 0 || savedProgress.episodeId)) {
+                  const resumeEpId = savedProgress.episodeId || episodes[0]?.id || "ep-1";
+                  const resumeUrl = `/watch/${anime.id}?episode=${encodeURIComponent(resumeEpId)}&t=${Math.floor(savedProgress.position || 0)}`;
+                  const resumeLabel = savedProgress.episodeNumber
+                    ? `Resume Ep ${savedProgress.episodeNumber}`
+                    : "Resume Watching";
+
+                  return (
+                    <>
+                      <Link href={resumeUrl}>
+                        <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-[#00DF81]/25 flex items-center gap-2">
+                          <Play className="w-5 h-5 fill-black text-black" />
+                          <span>{resumeLabel}</span>
+                          <span className="text-xs bg-black/25 text-black px-2 py-0.5 rounded-full font-semibold">
+                            {Math.floor((savedProgress.position || 0) / 60)}m
+                          </span>
+                        </Button>
+                      </Link>
+                      <Link href={`/watch/${anime.id}?episode=${episodes[0]?.id || "ep-1"}&t=0`}>
+                        <Button variant="secondary" size="lg" className="border border-white/10 hover:border-white/30 text-xs">
+                          Start from Ep 1
+                        </Button>
+                      </Link>
+                    </>
+                  );
+                }
+
+                return (
+                  <Link href={`/watch/${anime.id}?episode=${episodes[0]?.id || "ep-1"}`}>
+                    <Button variant="primary" size="lg" className="font-bold text-black px-6 shadow-xl shadow-[#00DF81]/25">
+                      <Play className="w-5 h-5 fill-black text-black" /> Watch Now
+                    </Button>
+                  </Link>
+                );
+              })()}
               <Button
                 variant="secondary"
                 size="lg"

@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { MediaGrid } from "@/components/media/MediaGrid";
+import { YearFilter } from "@/components/media/YearFilter";
 import { Skeleton } from "@/components/ui/Skeleton";
-import { GENRES, MOCK_ANIME } from "@/providers/mock/data";
+import { MOCK_ANIME } from "@/providers/mock/data";
 import { cn } from "@/lib/utils";
 import type { MediaItem } from "@/providers/core/types";
 
@@ -25,6 +26,7 @@ const ANIME_GENRES = [
 
 export default function AnimePage() {
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
+  const [activeYear, setActiveYear] = useState<number | null>(null);
   const [items, setItems] = useState<MediaItem[]>(MOCK_ANIME);
   const [loading, setLoading] = useState(true);
 
@@ -32,28 +34,40 @@ export default function AnimePage() {
     async function loadAnime() {
       setLoading(true);
       try {
-        const url = activeGenre
-          ? `/api/media/search?genre=${encodeURIComponent(activeGenre)}&type=anime`
+        const params = new URLSearchParams();
+        params.set("type", "anime");
+        if (activeGenre) params.set("genre", activeGenre);
+        if (activeYear) params.set("year", activeYear.toString());
+
+        const url = (activeGenre || activeYear)
+          ? `/api/media/search?${params.toString()}`
           : `/api/media/popular?type=anime`;
+
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           const list = data.items || [];
           if (list.length > 0) {
             setItems(list);
-          } else {
-            setItems(MOCK_ANIME);
+            return;
           }
         }
+        let fallback = MOCK_ANIME;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setItems(fallback.length > 0 ? fallback : MOCK_ANIME);
       } catch {
-        setItems(MOCK_ANIME);
+        let fallback = MOCK_ANIME;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setItems(fallback.length > 0 ? fallback : MOCK_ANIME);
       } finally {
         setLoading(false);
       }
     }
 
     loadAnime();
-  }, [activeGenre]);
+  }, [activeGenre, activeYear]);
 
   return (
     <div className="px-4 md:px-8 py-6 space-y-6">
@@ -93,6 +107,9 @@ export default function AnimePage() {
           );
         })}
       </div>
+
+      {/* Year Filter */}
+      <YearFilter selectedYear={activeYear} onSelectYear={setActiveYear} />
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 md:gap-5">

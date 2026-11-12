@@ -30,7 +30,8 @@ export class AniListProvider extends BaseMediaProvider {
       query,
       options?.page || 1,
       options?.limit || 24,
-      options?.genre
+      options?.genre,
+      options?.year
     );
   }
 

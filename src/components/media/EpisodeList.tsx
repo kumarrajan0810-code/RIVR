@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Play } from "lucide-react";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { cn, formatRuntime } from "@/lib/utils";
+import { useWatchHistory } from "@/hooks/useWatchHistory";
 import type { Episode, WatchProgress } from "@/providers/core/types";
 
 interface EpisodeCardProps {
@@ -13,12 +14,20 @@ interface EpisodeCardProps {
   className?: string;
 }
 
-export function EpisodeCard({ episode, progress, className }: EpisodeCardProps) {
+export function EpisodeCard({ episode, progress: propProgress, className }: EpisodeCardProps) {
+  const { getProgress } = useWatchHistory();
+  const progress = propProgress || getProgress(episode.seriesId, episode.id);
+
+  const watchHref = progress && progress.position > 0
+    ? `/watch/${episode.seriesId}?episode=${episode.id}&t=${Math.floor(progress.position)}`
+    : `/watch/${episode.seriesId}?episode=${episode.id}`;
+
   return (
     <Link
-      href={`/watch/${episode.seriesId}?episode=${episode.id}`}
+      href={watchHref}
       className={cn(
         "group flex gap-2.5 sm:gap-4 p-2 sm:p-3 rounded-xl hover:bg-surface-hover transition-all duration-200",
+        progress && progress.position > 0 && "bg-white/[0.02] border border-[#00DF81]/20",
         className
       )}
     >
@@ -59,9 +68,14 @@ export function EpisodeCard({ episode, progress, className }: EpisodeCardProps) 
       <div className="flex-1 min-w-0 py-1">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <h4 className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
-              <span className="text-muted-foreground mr-1.5">E{episode.episodeNumber}</span>
-              {episode.title}
+            <h4 className="text-sm font-medium text-foreground group-hover:text-accent transition-colors flex items-center gap-2">
+              <span className="text-muted-foreground">E{episode.episodeNumber}</span>
+              <span>{episode.title}</span>
+              {progress && progress.position > 0 && (
+                <span className="text-[10px] font-semibold text-accent bg-accent/10 px-1.5 py-0.5 rounded border border-accent/20">
+                  {Math.floor(progress.position / 60)}m watched
+                </span>
+              )}
             </h4>
             {episode.runtime && (
               <span className="text-xs text-muted-foreground">{formatRuntime(episode.runtime)}</span>

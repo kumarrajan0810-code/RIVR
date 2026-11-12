@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { MediaGrid } from "@/components/media/MediaGrid";
+import { YearFilter } from "@/components/media/YearFilter";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { MOCK_SERIES, GENRES } from "@/providers/mock/data";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,7 @@ import type { MediaItem } from "@/providers/core/types";
 
 export default function TVShowsPage() {
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
+  const [activeYear, setActiveYear] = useState<number | null>(null);
   const [series, setSeries] = useState<MediaItem[]>(MOCK_SERIES);
   const [loading, setLoading] = useState(false);
 
@@ -16,27 +18,39 @@ export default function TVShowsPage() {
     async function loadTV() {
       setLoading(true);
       try {
-        const url = activeGenre
-          ? `/api/media/search?genre=${encodeURIComponent(activeGenre)}&type=series`
+        const params = new URLSearchParams();
+        params.set("type", "series");
+        if (activeGenre) params.set("genre", activeGenre);
+        if (activeYear) params.set("year", activeYear.toString());
+
+        const url = (activeGenre || activeYear)
+          ? `/api/media/search?${params.toString()}`
           : `/api/media/popular?type=series`;
+
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           if (data.items?.length > 0) {
             setSeries(data.items);
-          } else {
-            setSeries(MOCK_SERIES);
+            return;
           }
         }
+        let fallback = MOCK_SERIES;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setSeries(fallback.length > 0 ? fallback : MOCK_SERIES);
       } catch {
-        setSeries(MOCK_SERIES);
+        let fallback = MOCK_SERIES;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setSeries(fallback.length > 0 ? fallback : MOCK_SERIES);
       } finally {
         setLoading(false);
       }
     }
 
     loadTV();
-  }, [activeGenre]);
+  }, [activeGenre, activeYear]);
 
   const tvGenres = GENRES.filter((g) =>
     ["18", "80", "10765", "9648", "35", "10759", "16", "99"].includes(g.id)
@@ -45,8 +59,8 @@ export default function TVShowsPage() {
   return (
     <div className="px-4 md:px-8 py-6 space-y-6">
       <div>
-        <h1 className="font-display text-3xl font-bold text-foreground mb-1">TV Shows</h1>
-        <p className="text-muted-foreground text-sm">Binge trending series and acclaimed shows</p>
+        <h1 className="font-display text-3xl font-bold text-foreground mb-1">TV Shows & Dramas</h1>
+        <p className="text-muted-foreground text-sm">Binge trending series and acclaimed global dramas</p>
       </div>
 
       {/* Genre filter tabs */}
@@ -80,6 +94,9 @@ export default function TVShowsPage() {
           );
         })}
       </div>
+
+      {/* Year Filter */}
+      <YearFilter selectedYear={activeYear} onSelectYear={setActiveYear} />
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 md:gap-5">

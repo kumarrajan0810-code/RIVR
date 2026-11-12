@@ -1,6 +1,6 @@
 // AniList GraphQL Queries
 export const ANIME_SEARCH_QUERY = `
-query ($search: String, $page: Int, $perPage: Int, $genre: String, $sort: [MediaSort]) {
+query ($search: String, $page: Int, $perPage: Int, $genre: String, $seasonYear: Int, $status: MediaStatus, $sort: [MediaSort]) {
   Page(page: $page, perPage: $perPage) {
     pageInfo {
       total
@@ -8,7 +8,7 @@ query ($search: String, $page: Int, $perPage: Int, $genre: String, $sort: [Media
       lastPage
       hasNextPage
     }
-    media(search: $search, genre: $genre, type: ANIME, sort: $sort, isAdult: false) {
+    media(search: $search, genre: $genre, seasonYear: $seasonYear, status: $status, type: ANIME, sort: $sort, isAdult: false) {
       id
       idMal
       title {

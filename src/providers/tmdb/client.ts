@@ -68,13 +68,17 @@ export class TMDBClient {
     return null;
   }
 
-  async searchMovies(query: string, page = 1): Promise<SearchResult> {
+  async searchMovies(query: string, page = 1, year?: number): Promise<SearchResult> {
+    const params: Record<string, string | number | boolean> = { query, page, include_adult: false };
+    if (year) {
+      params.primary_release_year = year;
+    }
     const data = await this.fetchFromTMDB<{
       results: TMDBMovieRaw[];
       total_results: number;
       page: number;
       total_pages: number;
-    }>("/search/movie", { query, page, include_adult: false });
+    }>("/search/movie", params);
 
     if (!data) return { items: [], total: 0, page: 1, totalPages: 0 };
 
@@ -86,13 +90,17 @@ export class TMDBClient {
     };
   }
 
-  async searchTV(query: string, page = 1): Promise<SearchResult> {
+  async searchTV(query: string, page = 1, year?: number): Promise<SearchResult> {
+    const params: Record<string, string | number | boolean> = { query, page, include_adult: false };
+    if (year) {
+      params.first_air_date_year = year;
+    }
     const data = await this.fetchFromTMDB<{
       results: TMDBTVRaw[];
       total_results: number;
       page: number;
       total_pages: number;
-    }>("/search/tv", { query, page, include_adult: false });
+    }>("/search/tv", params);
 
     if (!data) return { items: [], total: 0, page: 1, totalPages: 0 };
 
@@ -118,21 +126,27 @@ export class TMDBClient {
     return (data?.results || []).map(mapTMDBTVToMediaItem);
   }
 
-  async getPopularMovies(page = 1, genreId?: string): Promise<MediaItem[]> {
-    const endpoint = genreId ? "/discover/movie" : "/movie/popular";
-    const data = await this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>(endpoint, {
-      page,
-      with_genres: genreId || "",
-    });
+  async getPopularMovies(page = 1, genreId?: string, year?: number): Promise<MediaItem[]> {
+    const isDiscover = Boolean(genreId || year);
+    const endpoint = isDiscover ? "/discover/movie" : "/movie/popular";
+    const params: Record<string, string | number | boolean> = { page };
+    if (genreId) params.with_genres = genreId;
+    if (year) params.primary_release_year = year;
+    if (isDiscover) params.sort_by = "popularity.desc";
+
+    const data = await this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>(endpoint, params);
     return (data?.results || []).map(mapTMDBMovieToMediaItem);
   }
 
-  async getPopularTV(page = 1, genreId?: string): Promise<MediaItem[]> {
-    const endpoint = genreId ? "/discover/tv" : "/tv/popular";
-    const data = await this.fetchFromTMDB<{ results: TMDBTVRaw[] }>(endpoint, {
-      page,
-      with_genres: genreId || "",
-    });
+  async getPopularTV(page = 1, genreId?: string, year?: number): Promise<MediaItem[]> {
+    const isDiscover = Boolean(genreId || year);
+    const endpoint = isDiscover ? "/discover/tv" : "/tv/popular";
+    const params: Record<string, string | number | boolean> = { page };
+    if (genreId) params.with_genres = genreId;
+    if (year) params.first_air_date_year = year;
+    if (isDiscover) params.sort_by = "popularity.desc";
+
+    const data = await this.fetchFromTMDB<{ results: TMDBTVRaw[] }>(endpoint, params);
     return (data?.results || []).map(mapTMDBTVToMediaItem);
   }
 
@@ -288,6 +302,140 @@ export class TMDBClient {
           searchQuery: p.name,
         };
       });
+  }
+  async getTop25Movies(window: "daily" | "weekly" | "monthly" | "all-time" = "daily"): Promise<MediaItem[]> {
+    try {
+      let results: TMDBMovieRaw[] = [];
+      if (window === "daily") {
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/trending/movie/day", { page: 1 }),
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/trending/movie/day", { page: 2 }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else if (window === "weekly") {
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/trending/movie/week", { page: 1 }),
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/trending/movie/week", { page: 2 }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else if (window === "monthly") {
+        const oneMonthAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/discover/movie", {
+            sort_by: "popularity.desc",
+            "primary_release_date.gte": oneMonthAgo,
+            page: 1,
+          }),
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/discover/movie", {
+            sort_by: "popularity.desc",
+            "primary_release_date.gte": oneMonthAgo,
+            page: 2,
+          }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else {
+        // all-time top rated
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/movie/top_rated", { page: 1 }),
+          this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/movie/top_rated", { page: 2 }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      }
+
+      return results.slice(0, 25).map(mapTMDBMovieToMediaItem);
+    } catch {
+      return [];
+    }
+  }
+
+  async getTop25Dramas(window: "daily" | "weekly" | "monthly" | "all-time" = "daily"): Promise<MediaItem[]> {
+    try {
+      let results: TMDBTVRaw[] = [];
+      if (window === "daily") {
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/trending/tv/day", { page: 1 }),
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/trending/tv/day", { page: 2 }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else if (window === "weekly") {
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/trending/tv/week", { page: 1 }),
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/trending/tv/week", { page: 2 }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else if (window === "monthly") {
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/discover/tv", {
+            sort_by: "popularity.desc",
+            with_genres: "18", // Drama
+            page: 1,
+          }),
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/discover/tv", {
+            sort_by: "popularity.desc",
+            with_genres: "18",
+            page: 2,
+          }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      } else {
+        // all-time top rated drama
+        const [p1, p2] = await Promise.all([
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/discover/tv", {
+            sort_by: "vote_average.desc",
+            "vote_count.gte": 250,
+            with_genres: "18",
+            page: 1,
+          }),
+          this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/discover/tv", {
+            sort_by: "vote_average.desc",
+            "vote_count.gte": 250,
+            with_genres: "18",
+            page: 2,
+          }),
+        ]);
+        results = [...(p1?.results || []), ...(p2?.results || [])];
+      }
+
+      return results.slice(0, 25).map(mapTMDBTVToMediaItem);
+    } catch {
+      return [];
+    }
+  }
+
+  async getUpcomingMovies(): Promise<MediaItem[]> {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const data = await this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/discover/movie", {
+        sort_by: "popularity.desc",
+        "primary_release_date.gte": today,
+        page: 1,
+      });
+      if (data?.results?.length) {
+        return data.results.slice(0, 20).map(mapTMDBMovieToMediaItem);
+      }
+      const upcoming = await this.fetchFromTMDB<{ results: TMDBMovieRaw[] }>("/movie/upcoming", { page: 1 });
+      return (upcoming?.results || []).slice(0, 20).map(mapTMDBMovieToMediaItem);
+    } catch {
+      return [];
+    }
+  }
+
+  async getUpcomingTV(isDrama = false): Promise<MediaItem[]> {
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const params: Record<string, string | number | boolean> = {
+        sort_by: "popularity.desc",
+        "first_air_date.gte": today,
+        page: 1,
+      };
+      if (isDrama) {
+        params.with_genres = "18";
+      }
+      const data = await this.fetchFromTMDB<{ results: TMDBTVRaw[] }>("/discover/tv", params);
+      return (data?.results || []).slice(0, 20).map(mapTMDBTVToMediaItem);
+    } catch {
+      return [];
+    }
   }
 }
 

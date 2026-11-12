@@ -185,6 +185,9 @@ export interface Studio {
 export interface WatchProgress {
   mediaId: string;
   episodeId?: string;
+  seasonNumber?: number;
+  episodeNumber?: number;
+  episodeTitle?: string;
   position: number; // seconds
   duration: number; // seconds
   percentage: number;

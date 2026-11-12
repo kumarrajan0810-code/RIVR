@@ -30,7 +30,7 @@ export class AniListClient {
     }
   }
 
-  async searchAnime(query: string, page = 1, perPage = 24, genre?: string): Promise<SearchResult> {
+  async searchAnime(query: string, page = 1, perPage = 24, genre?: string, year?: number): Promise<SearchResult> {
     const data = await this.executeQuery<{
       Page: {
         pageInfo: { total: number; currentPage: number; lastPage: number; hasNextPage: boolean };
@@ -39,6 +39,7 @@ export class AniListClient {
     }>(ANIME_SEARCH_QUERY, {
       search: query || undefined,
       genre: genre || undefined,
+      seasonYear: year || undefined,
       page,
       perPage,
       sort: query ? ["SEARCH_MATCH", "POPULARITY_DESC"] : ["POPULARITY_DESC"],
@@ -69,17 +70,71 @@ export class AniListClient {
     return (data?.Page?.media || []).map(mapAniListToMediaItem);
   }
 
-  async getPopularAnime(perPage = 20, genre?: string): Promise<MediaItem[]> {
+  async getPopularAnime(perPage = 20, genre?: string, year?: number): Promise<MediaItem[]> {
     const data = await this.executeQuery<{
       Page: { media: AniListMediaRaw[] };
     }>(ANIME_SEARCH_QUERY, {
       page: 1,
       perPage,
       genre: genre || undefined,
+      seasonYear: year || undefined,
       sort: ["POPULARITY_DESC"],
     });
 
     return (data?.Page?.media || []).map(mapAniListToMediaItem);
+  }
+
+  async getTop25Anime(window: "daily" | "weekly" | "monthly" | "all-time" = "daily"): Promise<MediaItem[]> {
+    try {
+      const currentYear = new Date().getFullYear();
+      let sort: string[] = ["TRENDING_DESC"];
+      let status: string | undefined = undefined;
+      let seasonYear: number | undefined = undefined;
+
+      if (window === "daily") {
+        sort = ["TRENDING_DESC"];
+      } else if (window === "weekly") {
+        sort = ["TRENDING_DESC"];
+        status = "RELEASING";
+      } else if (window === "monthly") {
+        sort = ["POPULARITY_DESC"];
+        seasonYear = currentYear;
+      } else {
+        // all-time top score
+        sort = ["SCORE_DESC"];
+      }
+
+      const data = await this.executeQuery<{
+        Page: { media: AniListMediaRaw[] };
+      }>(ANIME_SEARCH_QUERY, {
+        page: 1,
+        perPage: 25,
+        sort,
+        status,
+        seasonYear,
+      });
+
+      return (data?.Page?.media || []).map(mapAniListToMediaItem);
+    } catch {
+      return [];
+    }
+  }
+
+  async getUpcomingAnime(): Promise<MediaItem[]> {
+    try {
+      const data = await this.executeQuery<{
+        Page: { media: AniListMediaRaw[] };
+      }>(ANIME_SEARCH_QUERY, {
+        page: 1,
+        perPage: 20,
+        status: "NOT_YET_RELEASED",
+        sort: ["POPULARITY_DESC"],
+      });
+
+      return (data?.Page?.media || []).map(mapAniListToMediaItem);
+    } catch {
+      return [];
+    }
   }
 
   async getAnimeDetails(id: number): Promise<MediaItem | null> {

@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { tmdbClient } from "@/providers/tmdb/client";
-import { STAR_POWER_LIST } from "../route";
+import { STAR_POWER_LIST } from "@/lib/stars";
 
 export async function GET(
   request: NextRequest,

@@ -4,7 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, ChevronRight as ArrowIcon, Sparkles } from "lucide-react";
-import type { StarPerson } from "@/app/api/media/stars/route";
+import type { StarPerson } from "@/lib/stars";
 
 export function StarPowerRail() {
   const [stars, setStars] = useState<StarPerson[]>([]);

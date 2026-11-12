@@ -4,12 +4,12 @@ import { useRef, useEffect, useCallback, useState } from "react";
 import {
   Play, Pause, Volume2, VolumeX, Maximize, Minimize,
   PictureInPicture2, SkipForward, SkipBack,
-  ArrowLeft, Settings, Subtitles, Loader2,
+  ArrowLeft, Settings, Subtitles, Loader2, ListVideo, X,
 } from "lucide-react";
 import { cn, formatRuntime } from "@/lib/utils";
 import { usePlayerStore } from "@/stores/playerStore";
 import { useKeyboard } from "@/hooks/useKeyboard";
-import { StreamType, type Stream } from "@/providers/core/types";
+import { StreamType, type Stream, type Episode, type Season } from "@/providers/core/types";
 
 interface VideoPlayerProps {
   stream: Stream | null;
@@ -21,6 +21,19 @@ interface VideoPlayerProps {
   onTimeUpdate?: (currentTime: number, duration: number, progressPct?: number) => void;
   startAt?: number;
   autoPlay?: boolean;
+  // Episode navigation props
+  episodes?: Episode[];
+  currentEpisodeId?: string;
+  currentSeasonNumber?: number;
+  currentEpisodeNumber?: number;
+  onSelectEpisode?: (episode: Episode) => void;
+  onNextEpisode?: () => void;
+  hasNextEpisode?: boolean;
+  nextEpisodeLabel?: string;
+  seasons?: Season[];
+  activeSeason?: number;
+  onSelectSeason?: (seasonNumber: number) => void;
+  episodesLoading?: boolean;
 }
 
 export function VideoPlayer({
@@ -33,6 +46,18 @@ export function VideoPlayer({
   onTimeUpdate,
   startAt = 0,
   autoPlay = true,
+  episodes = [],
+  currentEpisodeId,
+  currentSeasonNumber,
+  currentEpisodeNumber,
+  onSelectEpisode,
+  onNextEpisode,
+  hasNextEpisode = false,
+  nextEpisodeLabel,
+  seasons = [],
+  activeSeason,
+  onSelectSeason,
+  episodesLoading = false,
 }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -48,8 +73,18 @@ export function VideoPlayer({
 
   const [showVolume, setShowVolume] = useState(false);
   const [showSourceMenu, setShowSourceMenu] = useState(false);
+  const [showEpisodesDrawer, setShowEpisodesDrawer] = useState(false);
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [hoverX, setHoverX] = useState(0);
+  const [showResumeBanner, setShowResumeBanner] = useState(Boolean(startAt && startAt > 0));
+
+  useEffect(() => {
+    if (startAt && startAt > 0) {
+      setShowResumeBanner(true);
+      const timer = setTimeout(() => setShowResumeBanner(false), 4500);
+      return () => clearTimeout(timer);
+    }
+  }, [startAt]);
 
   const isExternalEmbed = stream?.type === StreamType.EXTERNAL || Boolean(stream && !stream.isHls);
 
@@ -346,7 +381,191 @@ export function VideoPlayer({
     { key: "l", handler: () => seek(10), description: "Forward 10s" },
     { key: "ArrowUp", handler: () => handleVolumeChange(Math.min(1, volume + 0.1)), description: "Volume Up" },
     { key: "ArrowDown", handler: () => handleVolumeChange(Math.max(0, volume - 0.1)), description: "Volume Down" },
+    { key: "n", shift: true, handler: () => { if (hasNextEpisode && onNextEpisode) onNextEpisode(); }, description: "Next Episode" },
+    { key: "e", handler: () => { if (episodes.length > 0) setShowEpisodesDrawer((v) => !v); }, description: "Toggle Episodes Drawer" },
+    { key: "Escape", handler: () => setShowEpisodesDrawer(false), description: "Close Drawer" },
   ]);
+
+  // Episodes drawer overlay node (rendered in both external embed and direct player modes)
+  const episodesDrawerNode = showEpisodesDrawer && episodes.length > 0 && (
+    <div
+      className="fixed inset-0 z-50 flex justify-end bg-black/75 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={() => setShowEpisodesDrawer(false)}
+    >
+      <div
+        className="relative w-full max-w-md md:max-w-lg h-full bg-[#121212] border-l border-[#262626] flex flex-col shadow-2xl animate-in slide-in-from-right duration-200 overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Drawer Header */}
+        <div className="flex items-center justify-between px-5 py-4 border-b border-[#262626] bg-[#171717] flex-shrink-0">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-[#00DF81]/15 flex items-center justify-center text-[#00DF81]">
+              <ListVideo className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="text-sm md:text-base font-bold text-white leading-tight">Episodes</h3>
+              <p className="text-[11px] text-[#A1A1AA]">{episodes.length} episodes in this season</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setShowEpisodesDrawer(false)}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-[#A1A1AA] hover:text-white transition-colors cursor-pointer"
+            title="Close (Esc)"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Season Selector Tabs */}
+        {seasons && seasons.length > 1 && (
+          <div className="px-4 py-2.5 border-b border-[#262626] bg-[#141414] overflow-x-auto flex items-center gap-2 flex-shrink-0 scrollbar-none">
+            {seasons.map((s) => {
+              const isSelected = activeSeason === s.seasonNumber;
+              return (
+                <button
+                  key={s.id || s.seasonNumber}
+                  type="button"
+                  onClick={() => onSelectSeason?.(s.seasonNumber)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer",
+                    isSelected
+                      ? "bg-[#00DF81] text-black font-bold shadow-md shadow-[#00DF81]/25"
+                      : "bg-[#222222] hover:bg-[#2e2e2e] text-[#D4D4D8] hover:text-white"
+                  )}
+                >
+                  {s.title || `Season ${s.seasonNumber}`}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Up Next Quick Card */}
+        {hasNextEpisode && onNextEpisode && (
+          <div className="p-4 border-b border-[#262626] bg-[#00DF81]/5 flex-shrink-0">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <span className="text-[10px] font-bold text-[#00DF81] uppercase tracking-wider">Up Next</span>
+                <p className="text-xs text-white font-medium truncate mt-0.5">
+                  {nextEpisodeLabel || "Next Episode"}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onNextEpisode();
+                  setShowEpisodesDrawer(false);
+                }}
+                className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold flex items-center gap-1.5 transition-all flex-shrink-0 cursor-pointer shadow-md shadow-[#00DF81]/20 active:scale-95"
+              >
+                <Play className="w-3.5 h-3.5 fill-black" />
+                <span>Play Next</span>
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Scrollable Episodes List */}
+        <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
+          {episodesLoading ? (
+            <div className="py-20 flex flex-col items-center justify-center text-center text-[#A1A1AA]">
+              <Loader2 className="w-7 h-7 text-[#00DF81] animate-spin mb-3" />
+              <p className="text-xs">Loading season episodes...</p>
+            </div>
+          ) : episodes.length === 0 ? (
+            <div className="py-20 text-center text-[#A1A1AA]">
+              <p className="text-xs">No episodes found for this season.</p>
+            </div>
+          ) : (
+            episodes.map((ep) => {
+              const isPlaying =
+                ep.id === currentEpisodeId ||
+                (currentSeasonNumber !== undefined &&
+                  currentEpisodeNumber !== undefined &&
+                  ep.seasonNumber === currentSeasonNumber &&
+                  ep.episodeNumber === currentEpisodeNumber);
+              const thumb = ep.thumbnail || ep.still;
+
+              return (
+                <button
+                  key={ep.id}
+                  type="button"
+                  onClick={() => {
+                    onSelectEpisode?.(ep);
+                    setShowEpisodesDrawer(false);
+                  }}
+                  className={cn(
+                    "w-full text-left group p-2 rounded-xl transition-all cursor-pointer flex gap-3 items-center border",
+                    isPlaying
+                      ? "bg-[#00DF81]/15 border-[#00DF81]/50 text-white"
+                      : "hover:bg-[#1f1f1f] border-transparent text-[#D4D4D8] hover:text-white"
+                  )}
+                >
+                  {/* Thumbnail */}
+                  <div className="relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden bg-[#222222] flex-shrink-0 border border-white/5">
+                    {thumb ? (
+                      <img
+                        src={thumb}
+                        alt={ep.title}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLElement).style.display = "none";
+                        }}
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 flex items-center justify-center bg-black/35 group-hover:bg-black/55 transition-colors">
+                      {isPlaying ? (
+                        <div className="w-6 h-6 rounded-full bg-[#00DF81] flex items-center justify-center text-black shadow-md">
+                          <Play className="w-3 h-3 fill-black ml-0.5" />
+                        </div>
+                      ) : (
+                        <div className="w-6 h-6 rounded-full bg-black/70 group-hover:bg-[#00DF81] text-white group-hover:text-black flex items-center justify-center transition-colors">
+                          <Play className="w-3 h-3 fill-current ml-0.5" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <span className="text-xs font-bold text-[#00DF81]">
+                        E{ep.episodeNumber}
+                      </span>
+                      {isPlaying && (
+                        <span className="text-[9px] font-extrabold bg-[#00DF81] text-black px-1.5 py-0.5 rounded uppercase tracking-wider">
+                          Now Playing
+                        </span>
+                      )}
+                      {ep.runtime && (
+                        <span className="text-[11px] text-[#A1A1AA] ml-auto flex-shrink-0">
+                          {formatRuntime(ep.runtime)}
+                        </span>
+                      )}
+                    </div>
+                    <h4
+                      className={cn(
+                        "text-xs sm:text-sm font-medium truncate",
+                        isPlaying ? "text-[#00DF81] font-semibold" : "text-white group-hover:text-[#00DF81] transition-colors"
+                      )}
+                    >
+                      {ep.title}
+                    </h4>
+                    {ep.overview && (
+                      <p className="text-[11px] text-[#A1A1AA] line-clamp-1 mt-0.5">
+                        {ep.overview}
+                      </p>
+                    )}
+                  </div>
+                </button>
+              );
+            })
+          )}
+        </div>
+      </div>
+    </div>
+  );
 
   if (!stream) {
     return (
@@ -375,10 +594,10 @@ export function VideoPlayer({
       <div ref={containerRef} className="relative w-full h-screen bg-player-bg flex flex-col overflow-hidden">
         {/* Floating Top Nav Bar */}
         <div className="player-top-gradient absolute top-0 left-0 right-0 z-30 px-4 md:px-6 pt-3 pb-8 pointer-events-auto flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 min-w-0 mr-2">
             <button
               onClick={onBack}
-              className="p-2 rounded-lg bg-black/60 hover:bg-black/90 border border-white/10 backdrop-blur-md text-white transition-all cursor-pointer shadow-lg active:scale-95"
+              className="p-2 rounded-lg bg-black/60 hover:bg-black/90 border border-white/10 backdrop-blur-md text-white transition-all cursor-pointer shadow-lg active:scale-95 flex-shrink-0"
               title="Back"
             >
               <ArrowLeft className="w-5 h-5 text-white" />
@@ -389,7 +608,46 @@ export function VideoPlayer({
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {/* In-player Episode Navigation Buttons */}
+            {episodes.length > 0 && (
+              <>
+                {hasNextEpisode && onNextEpisode && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNextEpisode();
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
+                    title={nextEpisodeLabel ? `Next: ${nextEpisodeLabel} (Shift+N)` : "Next Episode (Shift+N)"}
+                  >
+                    <SkipForward className="w-3.5 h-3.5 fill-black" />
+                    <span className="hidden sm:inline">Next Ep</span>
+                    <span className="sm:hidden">Next</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEpisodesDrawer((prev) => !prev);
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg border backdrop-blur-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-lg",
+                    showEpisodesDrawer
+                      ? "bg-[#00DF81] text-black border-[#00DF81] font-bold"
+                      : "bg-black/60 hover:bg-black/90 border-white/10 text-white"
+                  )}
+                  title="Browse Episodes (E)"
+                >
+                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-[#00DF81]")} />
+                  <span>Episodes</span>
+                </button>
+              </>
+            )}
+
             {availableStreams.length > 1 && (
               <div className="relative">
                 <button
@@ -442,7 +700,16 @@ export function VideoPlayer({
 
         {/* Iframe player with full fullscreen permissions */}
         <div className="w-full h-full flex-1 relative bg-black">
+          {showResumeBanner && (
+            <div className="absolute top-4 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-[#00DF81]/40 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium animate-pulse">
+              <span className="w-2 h-2 rounded-full bg-[#00DF81]" />
+              <span>
+                Resumed from {Math.floor(startAt / 60)}:{(Math.floor(startAt % 60)).toString().padStart(2, "0")}
+              </span>
+            </div>
+          )}
           <iframe
+            key={stream.url}
             src={stream.url}
             className="w-full h-full border-0 absolute inset-0"
             allowFullScreen={true}
@@ -450,6 +717,9 @@ export function VideoPlayer({
             title={title || "Video Player"}
           />
         </div>
+
+        {/* Episodes Drawer */}
+        {episodesDrawerNode}
       </div>
     );
   }
@@ -476,6 +746,16 @@ export function VideoPlayer({
         </div>
       )}
 
+      {/* Resume Indicator Banner */}
+      {showResumeBanner && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-50 bg-[#181818]/95 border border-[#00DF81]/40 text-white px-4 py-2 rounded-full shadow-2xl backdrop-blur-md flex items-center gap-2 text-xs font-medium pointer-events-none">
+          <span className="w-2 h-2 rounded-full bg-[#00DF81] animate-ping" />
+          <span>
+            Resumed from {Math.floor(startAt / 60)}:{(Math.floor(startAt % 60)).toString().padStart(2, "0")}
+          </span>
+        </div>
+      )}
+
       {/* Controls overlay */}
       <div
         className={cn(
@@ -494,6 +774,46 @@ export function VideoPlayer({
               {title && <h2 className="text-base md:text-lg font-semibold text-white truncate">{title}</h2>}
               {subtitle && <p className="text-xs text-white/70 truncate">{subtitle}</p>}
             </div>
+
+            {/* In-player Episode Navigation Buttons */}
+            {episodes.length > 0 && (
+              <>
+                {hasNextEpisode && onNextEpisode && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onNextEpisode();
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-[#00DF81] hover:bg-[#00DF81]/90 text-black text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 shadow-lg active:scale-95"
+                    title={nextEpisodeLabel ? `Next: ${nextEpisodeLabel} (Shift+N)` : "Next Episode (Shift+N)"}
+                  >
+                    <SkipForward className="w-3.5 h-3.5 fill-black" />
+                    <span className="hidden sm:inline">Next Ep</span>
+                    <span className="sm:hidden">Next</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowEpisodesDrawer((prev) => !prev);
+                  }}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg border backdrop-blur-md text-xs font-medium transition-all cursor-pointer flex items-center gap-1.5 shadow-lg",
+                    showEpisodesDrawer
+                      ? "bg-[#00DF81] text-black border-[#00DF81] font-bold"
+                      : "bg-black/60 hover:bg-black/90 border-white/10 text-white"
+                  )}
+                  title="Browse Episodes (E)"
+                >
+                  <ListVideo className={cn("w-3.5 h-3.5", showEpisodesDrawer ? "text-black" : "text-[#00DF81]")} />
+                  <span>Episodes</span>
+                </button>
+              </>
+            )}
+
             {availableStreams.length > 1 && (
               <div className="relative">
                 <button
@@ -645,6 +965,9 @@ export function VideoPlayer({
           </div>
         </div>
       </div>
+
+      {/* Episodes Drawer */}
+      {episodesDrawerNode}
     </div>
   );
 }

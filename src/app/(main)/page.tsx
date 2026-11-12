@@ -5,6 +5,8 @@ import { HeroSection } from "@/components/media/HeroSection";
 import { MediaCarousel } from "@/components/media/MediaCarousel";
 import { StreamingNetworkRail } from "@/components/media/StreamingNetworkRail";
 import { StarPowerRail } from "@/components/media/StarPowerRail";
+import { Top25Showcase } from "@/components/media/Top25Showcase";
+import { UpcomingSection } from "@/components/media/UpcomingSection";
 import { useHistoryStore } from "@/stores/historyStore";
 import { useWatchlistStore } from "@/stores/watchlistStore";
 import {
@@ -112,8 +114,14 @@ export default function HomePage() {
           showType
         />
 
+        {/* Top 25 Leaderboard (Movies, Anime, Dramas | Daily, Weekly, Monthly, All-Time Fav) */}
+        <Top25Showcase />
+
         {/* Only on Streaming Providers (Netflix, Prime, HBO Max, Disney+, Apple TV+, Paramount+, Hulu) */}
         <StreamingNetworkRail />
+
+        {/* Upcoming Releases & Coming Soon (Movies, Dramas, Anime) */}
+        <UpcomingSection />
 
         {/* Star Power Curated Actors & Directors */}
         <StarPowerRail />

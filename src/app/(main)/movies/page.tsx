@@ -2,13 +2,15 @@
 
 import { useState, useEffect } from "react";
 import { MediaGrid } from "@/components/media/MediaGrid";
+import { YearFilter } from "@/components/media/YearFilter";
 import { Skeleton } from "@/components/ui/Skeleton";
 import { MOCK_MOVIES, GENRES } from "@/providers/mock/data";
 import { cn } from "@/lib/utils";
-import { MediaType, type MediaItem } from "@/providers/core/types";
+import type { MediaItem } from "@/providers/core/types";
 
 export default function MoviesPage() {
   const [activeGenre, setActiveGenre] = useState<string | null>(null);
+  const [activeYear, setActiveYear] = useState<number | null>(null);
   const [movies, setMovies] = useState<MediaItem[]>(MOCK_MOVIES);
   const [loading, setLoading] = useState(false);
 
@@ -16,27 +18,40 @@ export default function MoviesPage() {
     async function loadMovies() {
       setLoading(true);
       try {
-        const url = activeGenre
-          ? `/api/media/search?genre=${encodeURIComponent(activeGenre)}&type=movie`
+        const params = new URLSearchParams();
+        params.set("type", "movie");
+        if (activeGenre) params.set("genre", activeGenre);
+        if (activeYear) params.set("year", activeYear.toString());
+
+        const url = (activeGenre || activeYear)
+          ? `/api/media/search?${params.toString()}`
           : `/api/media/popular?type=movie`;
+
         const res = await fetch(url);
         if (res.ok) {
           const data = await res.json();
           if (data.items?.length > 0) {
             setMovies(data.items);
-          } else {
-            setMovies(MOCK_MOVIES);
+            return;
           }
         }
+        // Fallback filter
+        let fallback = MOCK_MOVIES;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setMovies(fallback.length > 0 ? fallback : MOCK_MOVIES);
       } catch {
-        setMovies(MOCK_MOVIES);
+        let fallback = MOCK_MOVIES;
+        if (activeYear) fallback = fallback.filter((m) => m.year === activeYear);
+        if (activeGenre) fallback = fallback.filter((m) => m.genres.some((g) => g.name.toLowerCase() === activeGenre.toLowerCase()));
+        setMovies(fallback.length > 0 ? fallback : MOCK_MOVIES);
       } finally {
         setLoading(false);
       }
     }
 
     loadMovies();
-  }, [activeGenre]);
+  }, [activeGenre, activeYear]);
 
   const movieGenres = GENRES.filter((g) =>
     ["28", "12", "16", "35", "80", "18", "14", "27", "878", "53"].includes(g.id)
@@ -80,6 +95,9 @@ export default function MoviesPage() {
           );
         })}
       </div>
+
+      {/* Year Filter */}
+      <YearFilter selectedYear={activeYear} onSelectYear={setActiveYear} />
 
       {loading ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7 gap-4 md:gap-5">
